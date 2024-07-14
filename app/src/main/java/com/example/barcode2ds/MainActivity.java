@@ -81,7 +81,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             protected Boolean doInBackground(String... params) {
                 // TODO Auto-generated method stub
                 open();
-                Log.e(TAG,"doInBackground==========================:");
+                // Log.e(TAG,"doInBackground==========================:");
                 return true;
             }
             @Override
