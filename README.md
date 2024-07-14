@@ -1,1 +1,0 @@
-# logsheet_QR_RFID
