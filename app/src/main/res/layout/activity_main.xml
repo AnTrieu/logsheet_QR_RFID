@@ -56,11 +56,26 @@
         android:layout_marginTop="20dp"
         android:background="@drawable/rounded_square"
         android:backgroundTint="#e9ecef"
-        android:text="   Mô tả RFID code"
-        android:textColor="#FF272727"
+        android:hint="   Mô tả RFID code"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button2" />
+
+    <EditText
+        android:id="@+id/editTextText2"
+        android:layout_width="276dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/rounded_square"
+        android:backgroundTint="#ffffff"
+        android:ems="10"
+        android:inputType="textMultiLine"
+        android:hint="   Mã QRcode"
+        app:layout_constraintEnd_toStartOf="@+id/button4"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/TextView" />
 
     <Button
         android:id="@+id/button4"
@@ -74,21 +89,51 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/TextView" />
 
-    <EditText
-        android:id="@+id/editTextText2"
-        android:layout_width="276dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="24dp"
-        android:background="@drawable/rounded_square"
-        android:backgroundTint="#ffffff"
-        android:ems="10"
-        android:inputType="textMultiLine"
-        android:text="   Mã QRcode"
-        android:textColor="#b9bec1"
-        app:layout_constraintEnd_toStartOf="@+id/button4"
-        app:layout_constraintHorizontal_bias="0.0"
+    <HorizontalScrollView
+        android:id="@+id/horizontalScrollView"
+        android:layout_width="369dp"
+        android:layout_height="328dp"
+        android:layout_marginTop="16dp"
+        android:background="#FF000000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/TextView" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextText2"
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="SpeakableTextPresentCheck">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical" />
+    </HorizontalScrollView>
+
+    <Button
+        android:id="@+id/button5"
+        android:layout_width="143dp"
+        android:layout_height="69dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_square"
+        android:backgroundTint="#cce5ff"
+        android:text="Sync"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.932"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerGioGhi"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Spinner
+        android:id="@+id/spinnerGioGhi"
+        android:layout_width="143dp"
+        android:layout_height="69dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_square"
+        android:backgroundTint="#eeeeee"
+        android:text="Gio ghi"
+        android:spinnerMode="dropdown"
+        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView"
+        tools:layout_editor_absoluteX="248dp" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

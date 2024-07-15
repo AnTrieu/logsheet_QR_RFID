@@ -45,7 +45,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
-            /*btnScan=(Button)findViewById(R.id.btnScan);
+            btnScan=(Button)findViewById(R.id.btnScan);
             tvData=(TextView)findViewById(R.id.tvData);
             btnStop=(Button)findViewById(R.id.btnStop);
             btnScan.setOnClickListener(this);
@@ -53,7 +53,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             new InitTask().execute();
 
         }
-*/
+
         @Override
         protected void onDestroy() {
             Log.i(TAG,"onDestroy");
