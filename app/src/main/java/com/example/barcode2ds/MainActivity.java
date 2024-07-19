@@ -5,10 +5,13 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -29,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView tvData;
     Spinner timeSpinner;
     TextView dateTextView;
+    LinearLayout containerA;
     Calendar calendar;
 
     String TAG = "MainActivity_2D";
@@ -45,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnScan.setOnClickListener(this);
         btnStop.setOnClickListener(this);
 
-        // Spinner setup
         timeSpinner = findViewById(R.id.spinner_time);
         ArrayList<String> timeList = new ArrayList<>();
         for (int i = 2; i <= 24; i += 2) {
@@ -55,11 +58,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         timeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         timeSpinner.setAdapter(timeAdapter);
 
-        // DatePicker setup
         dateTextView = findViewById(R.id.textview_date);
         calendar = Calendar.getInstance();
         updateDateLabel();
-
         dateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         calendar.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
+
+        containerA = findViewById(R.id.container_a);
+        addItemToContainerA();
 
         new InitTask().execute();
     }
@@ -150,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void updateDateLabel() {
-        String myFormat = "dd/MM/yyyy"; // In which you need put here
+        String myFormat = "dd/MM/yyyy";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
         dateTextView.setText(sdf.format(calendar.getTime()));
     }
@@ -164,4 +168,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             updateDateLabel();
         }
     };
+
+    private void addItemToContainerA() {
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View itemView = inflater.inflate(R.layout.item_a, containerA, false);
+        containerA.addView(itemView);
+    }
 }

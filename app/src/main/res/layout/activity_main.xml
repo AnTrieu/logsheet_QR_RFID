@@ -215,11 +215,11 @@
         app:layout_constraintVertical_bias="0.526"
         app:layout_constraintWidth_percent="0.33" />
 
-    <HorizontalScrollView
-        android:id="@+id/horizontalScrollView"
+    <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="#FF000000"
+        android:backgroundTint="#d5e8d4"
+        android:background="@drawable/rounded_square"
         app:layout_constraintBottom_toTopOf="@+id/guideline9"
         app:layout_constraintEnd_toStartOf="@+id/guideline12"
         app:layout_constraintHeight_percent="0.55"
@@ -230,11 +230,13 @@
         app:layout_constraintWidth_percent="0.935"
         tools:ignore="SpeakableTextPresentCheck">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical" />
-    </HorizontalScrollView>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/container_a"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 
     <Spinner
         android:id="@+id/spinner_time"
@@ -258,7 +260,6 @@
         android:layout_height="0dp"
         android:layout_gravity="center"
         android:background="@drawable/rounded_square"
-        android:backgroundTint="#eeeeee"
         android:clickable="true"
         android:focusable="true"
         android:padding="10dp"
@@ -284,6 +285,8 @@
         app:layout_constraintStart_toStartOf="@+id/guideline5"
         app:layout_constraintTop_toTopOf="@+id/guideline11"
         app:layout_constraintWidth_percent="0.255" />
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
