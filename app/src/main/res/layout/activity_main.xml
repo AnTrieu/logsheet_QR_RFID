@@ -218,7 +218,6 @@
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:backgroundTint="#d5e8d4"
         android:background="@drawable/rounded_square"
         app:layout_constraintBottom_toTopOf="@+id/guideline9"
         app:layout_constraintEnd_toStartOf="@+id/guideline12"
