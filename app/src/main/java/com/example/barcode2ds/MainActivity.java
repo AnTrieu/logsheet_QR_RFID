@@ -5,13 +5,10 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -21,6 +18,14 @@ import com.rscja.barcode.BarcodeDecoder;
 import com.rscja.barcode.BarcodeFactory;
 import com.rscja.deviceapi.entity.BarcodeEntity;
 
+import org.json.JSONArray;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,8 +36,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button btnStop;
     TextView tvData;
     Spinner timeSpinner;
+    Spinner recordersSpinner;
     TextView dateTextView;
-    LinearLayout containerA;
     Calendar calendar;
 
     String TAG = "MainActivity_2D";
@@ -49,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnScan.setOnClickListener(this);
         btnStop.setOnClickListener(this);
 
+        // Spinner setup
         timeSpinner = findViewById(R.id.spinner_time);
         ArrayList<String> timeList = new ArrayList<>();
         for (int i = 2; i <= 24; i += 2) {
@@ -58,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         timeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         timeSpinner.setAdapter(timeAdapter);
 
+        // DatePicker setup
         dateTextView = findViewById(R.id.textview_date);
         calendar = Calendar.getInstance();
         updateDateLabel();
@@ -70,8 +77,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        containerA = findViewById(R.id.container_a);
-        addItemToContainerA();
+        // Recorders Spinner setup
+        recordersSpinner = findViewById(R.id.spinner_recorders);
+        new LoadRecordersTask().execute();
 
         new InitTask().execute();
     }
@@ -154,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void updateDateLabel() {
-        String myFormat = "dd/MM/yyyy";
+        String myFormat = "dd/MM/yyyy"; // In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
         dateTextView.setText(sdf.format(calendar.getTime()));
     }
@@ -169,9 +177,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
-    private void addItemToContainerA() {
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View itemView = inflater.inflate(R.layout.item_a, containerA, false);
-        containerA.addView(itemView);
+    private class LoadRecordersTask extends AsyncTask<Void, Void, ArrayList<String>> {
+        @Override
+        protected ArrayList<String> doInBackground(Void... voids) {
+            ArrayList<String> recordersList = new ArrayList<>();
+            // Giả sử bạn có URL của máy chủ
+            String urlString = "http://example.com/api/recorders";
+
+            try {
+                URL url = new URL(urlString);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                StringBuilder result = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
+                }
+                // Giả sử kết quả trả về là một JSON Array
+                JSONArray jsonArray = new JSONArray(result.toString());
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    recordersList.add(jsonArray.getString(i));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return recordersList;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<String> recordersList) {
+            super.onPostExecute(recordersList);
+            if (recordersList != null && !recordersList.isEmpty()) {
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, recordersList);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                recordersSpinner.setAdapter(adapter);
+            } else {
+                // Xử lý khi không có dữ liệu
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, new String[]{"Người ghi ⭣"});
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                recordersSpinner.setAdapter(adapter);
+            }
+        }
     }
 }
