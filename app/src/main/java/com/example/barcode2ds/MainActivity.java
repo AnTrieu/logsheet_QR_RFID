@@ -3,8 +3,10 @@ package com.example.barcode2ds;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -12,6 +14,7 @@ import android.widget.DatePicker;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.rscja.barcode.BarcodeDecoder;
@@ -31,28 +34,21 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    Button btnScan;
-    Button btnStop;
-    TextView tvData;
+public class MainActivity extends AppCompatActivity {
     Spinner timeSpinner;
     Spinner recordersSpinner;
     TextView dateTextView;
     Calendar calendar;
+    Button button2, button3, button4, button5, button8;
 
     String TAG = "MainActivity_2D";
     BarcodeDecoder barcodeDecoder = BarcodeFactory.getInstance().getBarcodeDecoder();
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        btnScan = findViewById(R.id.btnScan);
-        tvData = findViewById(R.id.tvData);
-        btnStop = findViewById(R.id.btnStop);
-        btnScan.setOnClickListener(this);
-        btnStop.setOnClickListener(this);
 
         // Spinner setup
         timeSpinner = findViewById(R.id.spinner_time);
@@ -82,6 +78,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         new LoadRecordersTask().execute();
 
         new InitTask().execute();
+
+        // Animation setup
+        button2 = findViewById(R.id.button2);
+        button3 = findViewById(R.id.button3);
+        button4 = findViewById(R.id.button4);
+        button5 = findViewById(R.id.button5);
+        button8 = findViewById(R.id.button8);
+
+        setButtonAnimation(button2);
+        setButtonAnimation(button3);
+        setButtonAnimation(button4);
+        setButtonAnimation(button5);
+        setButtonAnimation(button8);
     }
 
     @Override
@@ -92,24 +101,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btnScan:
-                start();
-                break;
-            case R.id.btnStop:
-                stop();
-                break;
-        }
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void setButtonAnimation(final Button button) {
+        final int normalColor = button.getBackgroundTintList().getDefaultColor();
+        final int pressedColor = adjustColorBrightness(normalColor, -0.2f);
+
+        button.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        button.setScaleX(0.9f);
+                        button.setScaleY(0.9f);
+                        button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(pressedColor));
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        button.setScaleX(1.0f);
+                        button.setScaleY(1.0f);
+                        button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(normalColor));
+                        break;
+                }
+                return false;
+            }
+        });
     }
 
-    private void start() {
-        barcodeDecoder.startScan();
-    }
-
-    private void stop() {
-        barcodeDecoder.stopScan();
+    private int adjustColorBrightness(int color, float factor) {
+        int a = android.graphics.Color.alpha(color);
+        int r = Math.round(android.graphics.Color.red(color) * (1 + factor));
+        int g = Math.round(android.graphics.Color.green(color) * (1 + factor));
+        int b = Math.round(android.graphics.Color.blue(color) * (1 + factor));
+        return android.graphics.Color.argb(a, Math.min(r, 255), Math.min(g, 255), Math.min(b, 255));
     }
 
     private void open() {
@@ -119,12 +142,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onDecodeComplete(BarcodeEntity barcodeEntity) {
                 Log.e(TAG, "BarcodeDecoder==========================:" + barcodeEntity.getResultCode());
-                if (barcodeEntity.getResultCode() == BarcodeDecoder.DECODE_SUCCESS) {
-                    tvData.setText("data:" + barcodeEntity.getBarcodeData());
-                    Log.e(TAG, "data==========================:" + barcodeEntity.getBarcodeData());
-                } else {
-                    tvData.setText("fail");
-                }
             }
         });
     }
