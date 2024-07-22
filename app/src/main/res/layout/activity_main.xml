@@ -177,6 +177,7 @@
         app:layout_constraintWidth_percent="0.33" />
 
     <ScrollView
+        android:id="@+id/ScrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/rounded_square"
@@ -190,12 +191,11 @@
         app:layout_constraintWidth_percent="0.935"
         tools:ignore="SpeakableTextPresentCheck">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/container_a"
+        <LinearLayout
+            android:id="@+id/scrollLinearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            android:orientation="vertical" />
     </ScrollView>
 
     <Spinner

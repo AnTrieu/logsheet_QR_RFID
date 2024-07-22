@@ -2,24 +2,24 @@ package com.example.barcode2ds;
 
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.rscja.barcode.BarcodeDecoder;
-import com.rscja.barcode.BarcodeFactory;
-import com.rscja.deviceapi.entity.BarcodeEntity;
 
 import org.json.JSONArray;
 
@@ -40,9 +40,7 @@ public class MainActivity extends AppCompatActivity {
     TextView dateTextView;
     Calendar calendar;
     Button button2, button3, button4, button5, button8;
-
-    String TAG = "MainActivity_2D";
-    BarcodeDecoder barcodeDecoder = BarcodeFactory.getInstance().getBarcodeDecoder();
+    LinearLayout scrollLinearLayout;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -50,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Spinner setup
+        // Spinner setup for time
         timeSpinner = findViewById(R.id.spinner_time);
         ArrayList<String> timeList = new ArrayList<>();
         for (int i = 2; i <= 24; i += 2) {
@@ -77,8 +75,6 @@ public class MainActivity extends AppCompatActivity {
         recordersSpinner = findViewById(R.id.spinner_recorders);
         new LoadRecordersTask().execute();
 
-        new InitTask().execute();
-
         // Animation setup
         button2 = findViewById(R.id.button2);
         button3 = findViewById(R.id.button3);
@@ -86,19 +82,20 @@ public class MainActivity extends AppCompatActivity {
         button5 = findViewById(R.id.button5);
         button8 = findViewById(R.id.button8);
 
+        scrollLinearLayout = findViewById(R.id.scrollLinearLayout);
+
         setButtonAnimation(button2);
         setButtonAnimation(button3);
         setButtonAnimation(button4);
         setButtonAnimation(button5);
         setButtonAnimation(button8);
-    }
 
-    @Override
-    protected void onDestroy() {
-        Log.i(TAG, "onDestroy");
-        close();
-        super.onDestroy();
-        android.os.Process.killProcess(android.os.Process.myPid());
+        button5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addNewSoLieu();
+            }
+        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -135,49 +132,6 @@ public class MainActivity extends AppCompatActivity {
         return android.graphics.Color.argb(a, Math.min(r, 255), Math.min(g, 255), Math.min(b, 255));
     }
 
-    private void open() {
-        barcodeDecoder.open(this);
-        Log.e(TAG, "open()==========================:" + barcodeDecoder.open(this));
-        barcodeDecoder.setDecodeCallback(new BarcodeDecoder.DecodeCallback() {
-            @Override
-            public void onDecodeComplete(BarcodeEntity barcodeEntity) {
-                Log.e(TAG, "BarcodeDecoder==========================:" + barcodeEntity.getResultCode());
-            }
-        });
-    }
-
-    private void close() {
-        barcodeDecoder.close();
-    }
-
-    public class InitTask extends AsyncTask<String, Integer, Boolean> {
-        ProgressDialog mypDialog;
-
-        @Override
-        protected Boolean doInBackground(String... params) {
-            open();
-            Log.e(TAG, "doInBackground==========================:");
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            super.onPostExecute(result);
-            mypDialog.cancel();
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mypDialog = new ProgressDialog(MainActivity.this);
-            mypDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            mypDialog.setMessage("init...");
-            mypDialog.setCanceledOnTouchOutside(false);
-            mypDialog.setCancelable(false);
-            mypDialog.show();
-        }
-    }
-
     private void updateDateLabel() {
         String myFormat = "dd/MM/yyyy"; // In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
@@ -193,6 +147,20 @@ public class MainActivity extends AppCompatActivity {
             updateDateLabel();
         }
     };
+
+    private void addNewSoLieu() {
+        LayoutInflater inflater = LayoutInflater.from(this);
+        LinearLayout newSoLieuLayout = (LinearLayout) inflater.inflate(R.layout.solieulayout, null);
+
+        TextView textView2 = newSoLieuLayout.findViewById(R.id.textView2);
+        TextView textView3 = newSoLieuLayout.findViewById(R.id.textView3);
+        EditText editTextText = newSoLieuLayout.findViewById(R.id.editTextText);
+
+        textView2.setText("Không xác định");
+        textView3.setText("Không xác định");
+
+        scrollLinearLayout.addView(newSoLieuLayout, 0);
+    }
 
     private class LoadRecordersTask extends AsyncTask<Void, Void, ArrayList<String>> {
         @Override
@@ -232,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                 recordersSpinner.setAdapter(adapter);
             } else {
                 // Xử lý khi không có dữ liệu
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, new String[]{"Người ghi ⭣"});
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, new ArrayList<String>());
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 recordersSpinner.setAdapter(adapter);
             }
