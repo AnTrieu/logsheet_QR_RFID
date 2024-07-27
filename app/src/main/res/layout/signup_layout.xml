@@ -107,24 +107,6 @@
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toTopOf="@+id/guideline13" />
 
-    <EditText
-        android:id="@+id/editTextText3"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintWidth_percent="0.911"
-        app:layout_constraintHeight_percent="0.065"
-        android:background="@drawable/rounded_square"
-        android:backgroundTint="#f7f8f9"
-        android:ems="10"
-        android:hint=" Email"
-        android:inputType="text"
-        app:layout_constraintBottom_toTopOf="@+id/guideline15"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toTopOf="@+id/guideline14"
-        app:layout_constraintVertical_bias="0.633" />
-
     <TextView
         android:id="@+id/textView9"
         android:layout_width="0dp"
@@ -145,9 +127,9 @@
         app:layout_constraintBottom_toTopOf="@+id/guideline19"
         app:layout_constraintEnd_toStartOf="@+id/textView9"
         app:layout_constraintHeight_percent="0.025"
-        app:layout_constraintHorizontal_bias="0.85"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintWidth_percent="0.391" />
+        app:layout_constraintWidth_percent="0.421" />
 
     <TextView
         android:id="@+id/textView8"

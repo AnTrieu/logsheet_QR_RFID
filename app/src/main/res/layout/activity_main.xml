@@ -262,8 +262,4 @@
         app:layout_constraintStart_toStartOf="@+id/guideline5"
         app:layout_constraintTop_toTopOf="@+id/guideline11"
         app:layout_constraintWidth_percent="0.255" />
-
-
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

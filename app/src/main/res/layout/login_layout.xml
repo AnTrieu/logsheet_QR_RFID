@@ -66,29 +66,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.94201314" />
+        app:layout_constraintGuide_percent="0.98" />
 
     <TextView
         android:id="@+id/textView6"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintWidth_percent="0.8"
-        app:layout_constraintHeight_percent="0.08"
         android:layout_marginStart="12dp"
         android:text="WELCOME BACK!"
         android:textColor="#445381"
         android:textSize="40sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline13"
+        app:layout_constraintHeight_percent="0.08"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toTopOf="@+id/guideline3"
-        app:layout_constraintVertical_bias="0.385" />
+        app:layout_constraintVertical_bias="0.385"
+        app:layout_constraintWidth_percent="0.8" />
 
     <EditText
         android:id="@+id/editTextText4"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintWidth_percent="0.911"
-        app:layout_constraintHeight_percent="0.065"
         android:layout_marginTop="16dp"
         android:background="@drawable/rounded_square"
         android:backgroundTint="#f7f8f9"
@@ -96,16 +94,16 @@
         android:hint=" Username"
         android:inputType="text"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintHeight_percent="0.065"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toTopOf="@+id/guideline13" />
+        app:layout_constraintTop_toTopOf="@+id/guideline13"
+        app:layout_constraintWidth_percent="0.911" />
 
     <EditText
         android:id="@+id/editTextTextPassword2"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintWidth_percent="0.911"
-        app:layout_constraintHeight_percent="0.065"
         android:background="@drawable/rounded_square"
         android:backgroundTint="#f7f8f9"
         android:ems="10"
@@ -113,16 +111,16 @@
         android:inputType="textPassword"
         app:layout_constraintBottom_toTopOf="@+id/guideline21"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintHeight_percent="0.065"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toTopOf="@+id/guideline20" />
+        app:layout_constraintTop_toTopOf="@+id/guideline20"
+        app:layout_constraintWidth_percent="0.911" />
 
     <Button
         android:id="@+id/button"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintWidth_percent="0.911"
-        app:layout_constraintHeight_percent="0.095"
         android:background="@drawable/rounded_square"
         android:backgroundTint="#326cf6"
         android:text="Login"
@@ -130,59 +128,23 @@
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline23"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintHeight_percent="0.095"
         app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toTopOf="@+id/guideline22" />
-
-    <TextView
-        android:id="@+id/textView8"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintWidth_percent="0.211"
-        app:layout_constraintHeight_percent="0.025"
-        android:layout_marginTop="16dp"
-        android:text="Or login with"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintHorizontal_bias="0.493"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toTopOf="@+id/guideline23" />
-
-    <TextView
-        android:id="@+id/textView9"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintWidth_percent="0.351"
-        app:layout_constraintHeight_percent="0.025"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="4dp"
-        android:text="Don't have an account?"
-        app:layout_constraintEnd_toStartOf="@+id/textView10"
-        app:layout_constraintHorizontal_bias="0.928"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toTopOf="@+id/guideline24" />
+        app:layout_constraintTop_toTopOf="@+id/guideline22"
+        app:layout_constraintWidth_percent="0.911" />
 
     <TextView
         android:id="@+id/textView10"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintWidth_percent="0.211"
+        android:layout_marginEnd="84dp"
+        android:layout_marginBottom="8dp"
+        android:text="Don't have an account? Regiser Now "
+        app:layout_constraintBottom_toTopOf="@+id/guideline24"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintHeight_percent="0.025"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="80dp"
-        android:text="Regiser Now"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="@+id/guideline24" />
-
-    <TextView
-        android:id="@+id/textView7"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintWidth_percent="0.35"
-        app:layout_constraintHeight_percent="0.03"
-        android:text="Forgot Password?"
-        android:textSize="17sp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline22"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="@+id/guideline21"
-        app:layout_constraintVertical_bias="0.529" />
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintWidth_percent="0.56" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
