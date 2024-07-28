@@ -14,6 +14,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -79,11 +80,15 @@ public class MainActivity extends AppCompatActivity {
         protected ArrayList<String> doInBackground(Void... voids) {
             ArrayList<String> recordersList = new ArrayList<>();
             String token = "sdfghjkxcvbnmasdfghjkwerg5fabdsfghjkjhgfdsrtyueso";
-            String urlString = "https://det.app/DETAPI/LOGSHEET/logsheetdata" + token;
+            String urlString = "https://det.app/DETAPI/LOGSHEET/logsheetdata";
 
             try {
                 URL url = new URL(urlString);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setDoOutput(true);
+                urlConnection.getOutputStream().write(("action=getdata_nguoighi&tokenapi=" + token).getBytes());
+
                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                 StringBuilder result = new StringBuilder();
@@ -91,9 +96,12 @@ public class MainActivity extends AppCompatActivity {
                 while ((line = reader.readLine()) != null) {
                     result.append(line);
                 }
-                JSONArray jsonArray = new JSONArray(result.toString());
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    recordersList.add(jsonArray.getJSONObject(i).getString("RecorderName"));
+                JSONObject jsonObject = new JSONObject(result.toString());
+                if (jsonObject.getString("error").isEmpty()) {
+                    JSONArray dataArray = jsonObject.getJSONArray("data");
+                    for (int i = 0; i < dataArray.length(); i++) {
+                        recordersList.add(dataArray.getJSONObject(i).getString("giatri"));
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
