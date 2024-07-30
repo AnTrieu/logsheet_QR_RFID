@@ -198,11 +198,12 @@
             android:orientation="vertical" />
     </ScrollView>
 
-    <Spinner
-        android:id="@+id/spinner_time"
+    <AutoCompleteTextView
+        android:id="@+id/ACTV_time"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="12dp"
+        android:hint="    Giờ ghi"
         android:background="@drawable/rounded_square"
         android:backgroundTint="#eeeeee"
         android:spinnerMode="dropdown"
@@ -212,14 +213,15 @@
         app:layout_constraintTop_toTopOf="@+id/guideline9"
         app:layout_constraintVertical_bias="0.444"
         app:layout_constraintWidth_percent="0.255"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:dropDownHeight="300dp"/>
 
-    <Spinner
-        android:id="@+id/spinner_recorders"
+    <AutoCompleteTextView
+        android:id="@+id/ACTV_recorders"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_gravity="center"
-        android:text="Người ghi"
+        android:hint=" Người ghi"
         android:background="@drawable/rounded_square"
         android:backgroundTint="#eeeeee"
         app:layout_constraintBottom_toTopOf="@+id/guideline11"
@@ -229,7 +231,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline9"
         app:layout_constraintVertical_bias="0.428"
-        app:layout_constraintWidth_percent="0.63" />
+        app:layout_constraintWidth_percent="0.63"
+        android:dropDownHeight="300dp" /> <!-- Giới hạn chiều cao dropdown -->
 
     <TextView
         android:id="@+id/textview_date"
