@@ -20,20 +20,21 @@
             android:backgroundTint="#FFFFFF"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="87dp"
-                android:layout_height="40sp"
-                android:background="@drawable/rounded_square"
+            <EditText
+                android:id="@+id/editTextValue"
+                android:layout_width="96dp"
+                android:layout_height="48sp"
+                android:backgroundTint="#FFFFFF"
                 android:hint=" Giá trị"
-                android:textSize="27sp" />
+                android:textSize="23sp" />
 
-            <TextView
-                android:id="@+id/textView3"
+            <EditText
+                android:id="@+id/editTextNote"
                 android:layout_width="match_parent"
-                android:layout_height="40sp"
+                android:layout_height="48sp"
+                android:backgroundTint="#FFFFFF"
                 android:hint="   Ghi chú"
-                android:textSize="27sp" />
+                android:textSize="23sp" />
         </LinearLayout>
 
         <EditText
@@ -43,7 +44,7 @@
             android:backgroundTint="#d5e8d4"
             android:ems="10"
             android:inputType="text"
-            android:text="Mô tả tagpoint" />
+            android:hint="Mô tả tagpoint" />
     </LinearLayout>
 
 </LinearLayout>
