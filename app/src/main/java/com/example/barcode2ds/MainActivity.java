@@ -1,7 +1,12 @@
+//Quản lý chính
 package com.example.barcode2ds;
 
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Process;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -14,15 +19,11 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import com.rscja.barcode.BarcodeDecoder;
+import com.rscja.barcode.BarcodeFactory;
+import com.rscja.deviceapi.entity.BarcodeEntity;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     AutoCompleteTextView recordersACTV, timeACTV;
@@ -32,8 +33,10 @@ public class MainActivity extends AppCompatActivity {
     DateHandler dateHandler;
     ScrollViewHandler scrollViewHandler;
 
-    private static final String TOKEN = "sdfghjkxcvbnmasdfghjkwerg5fabdsfghjkjhgfdsrtyueso";
-    private static final String URL = "https://det.app/DETAPI/LOGSHEET/logsheetdata";
+    EditText editTextText2;
+    String TAG = "MainActivity_2D";
+    BarcodeDecoder barcodeDecoder = BarcodeFactory.getInstance().getBarcodeDecoder();
+    QRcode qrCode;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -73,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         // Animation setup
         button2 = findViewById(R.id.button2);
         button3 = findViewById(R.id.button3);
-        button4 = findViewById(R.id.button4);
+        button4 = findViewById(R.id.button4); // Nút quét QR code
         button5 = findViewById(R.id.button5);
         button8 = findViewById(R.id.button8);
 
@@ -86,13 +89,6 @@ public class MainActivity extends AppCompatActivity {
         AnimationHandler.setButtonAnimation(button5);
         AnimationHandler.setButtonAnimation(button8);
 
-        button8.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                scrollViewHandler.addNewSoLieu();
-            }
-        });
-
         button5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,18 +96,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        fetchLogsheetData();
-    }
-
-    private void fetchLogsheetData() {
-        FormBody formBody = new FormBody.Builder()
-                .add("action", "getdata_logsheet_info")
-                .add("tokenapi", TOKEN)
-                .build();
-
-        NetworkHandler.post(URL, formBody, new Callback() {
+        LogsheetFetcher.fetchLogsheetData(this, new LogsheetFetcher.LogsheetFetchListener() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFetchComplete(String responseData) {
+                // Handle the response data as needed
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "Logsheet data fetched successfully", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onFetchFailed(Exception e) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -119,27 +117,64 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             }
+        });
 
+        // Setup cho chức năng quét QR code
+        editTextText2 = findViewById(R.id.editTextText2);
+        qrCode = new QRcode(this, barcodeDecoder, editTextText2);
+
+        button4.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    final String responseData = response.body().string();
-                    // Handle the response data as needed
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainActivity.this, "Logsheet data fetched successfully", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                } else {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainActivity.this, "Error fetching logsheet data", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
+            public void onClick(View v) {
+                qrCode.start();
             }
         });
+
+        new InitTask().execute();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.i(TAG, "onDestroy");
+        close();
+        super.onDestroy();
+        Process.killProcess(Process.myPid());
+    }
+
+    private void open() {
+        barcodeDecoder.open(this);
+        Log.e(TAG, "open()==========================:" + barcodeDecoder.open(this));
+    }
+
+    private void close() {
+        barcodeDecoder.close();
+    }
+
+    public class InitTask extends AsyncTask<String, Integer, Boolean> {
+        ProgressDialog mypDialog;
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            open();
+            Log.e(TAG, "doInBackground==========================:");
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            mypDialog.cancel();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mypDialog = new ProgressDialog(MainActivity.this);
+            mypDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            mypDialog.setMessage("init...");
+            mypDialog.setCanceledOnTouchOutside(false);
+            mypDialog.setCancelable(false);
+            mypDialog.show();
+        }
     }
 }

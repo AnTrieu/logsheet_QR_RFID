@@ -1,3 +1,4 @@
+//Đăng nhập
 package com.example.barcode2ds;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -60,12 +61,15 @@ public class login extends AppCompatActivity {
                     JSONObject jsonObject = new JSONObject(response);
                     String status = jsonObject.getString("status");
                     String error = jsonObject.getString("error");
-
                     if ("ok".equals(status)) {
                         Toast.makeText(login.this, "Login successful!", Toast.LENGTH_SHORT).show();
                         // Chuyển sang MainActivity
-                        Intent intent = new Intent(login.this, MainActivity.class);
-                        startActivity(intent);
+                        Intent mainIntent = new Intent(login.this, MainActivity.class);
+                        startActivity(mainIntent);
+//
+//                        // Khởi động QRcode
+//                        Intent qrCodeIntent = new Intent(login.this, QRcode.class);
+//                        startActivity(qrCodeIntent);
                         finish(); // Kết thúc activity hiện tại
                     } else {
                         Toast.makeText(login.this, "Login failed: " + error, Toast.LENGTH_SHORT).show();

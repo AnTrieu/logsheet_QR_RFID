@@ -1,3 +1,4 @@
+//Xuất dữ liệu
 package com.example.barcode2ds;
 
 import android.content.Context;

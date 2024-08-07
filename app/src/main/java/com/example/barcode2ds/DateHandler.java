@@ -1,3 +1,4 @@
+//Đo ngày
 package com.example.barcode2ds;
 
 import android.app.DatePickerDialog;

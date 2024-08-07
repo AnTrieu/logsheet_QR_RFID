@@ -1,3 +1,4 @@
+//Hoạt ảnh các nút
 package com.example.barcode2ds;
 
 import android.os.Build;

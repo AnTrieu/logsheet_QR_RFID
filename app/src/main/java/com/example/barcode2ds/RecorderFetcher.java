@@ -1,3 +1,4 @@
+//Danh sách người ghi
 package com.example.barcode2ds;
 
 import android.os.AsyncTask;

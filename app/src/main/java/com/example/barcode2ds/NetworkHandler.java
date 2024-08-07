@@ -1,3 +1,4 @@
+//Kết nối internet
 package com.example.barcode2ds;
 
 import okhttp3.Call;
