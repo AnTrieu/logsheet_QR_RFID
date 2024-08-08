@@ -1,4 +1,4 @@
-//Quản lý chính
+// Quản lý chính
 package com.example.barcode2ds;
 
 import android.app.ProgressDialog;
@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -27,7 +28,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     AutoCompleteTextView recordersACTV, timeACTV;
-    TextView dateTextView;
+    TextView dateTextView, resultTextView;
     Button button2, button3, button4, button5, button8;
     LinearLayout scrollLinearLayout;
     DateHandler dateHandler;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     String TAG = "MainActivity_2D";
     BarcodeDecoder barcodeDecoder = BarcodeFactory.getInstance().getBarcodeDecoder();
     QRcode qrCode;
+    RFID rfid;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -130,6 +132,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Setup cho chức năng quét RFID
+        resultTextView = findViewById(R.id.TextView);
+        rfid = new RFID(this, resultTextView, button8);
+
+        button8.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rfid.startScan();
+            }
+        });
+
         new InitTask().execute();
     }
 
@@ -148,6 +161,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void close() {
         barcodeDecoder.close();
+    }
+
+    // Ghi đè phương thức onKeyDown để xử lý phím bấm vật lý
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == 291 || keyCode == 294) {
+            rfid.startScan();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     public class InitTask extends AsyncTask<String, Integer, Boolean> {

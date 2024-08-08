@@ -1,4 +1,3 @@
-//Quét QRcode
 package com.example.barcode2ds;
 
 import android.content.Context;
@@ -43,5 +42,9 @@ public class QRcode {
 
     public void stop() {
         barcodeDecoder.stopScan();
+    }
+
+    public void startScan() {
+        start();
     }
 }
