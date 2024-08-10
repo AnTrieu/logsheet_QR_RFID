@@ -16,17 +16,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.rscja.barcode.BarcodeDecoder;
 import com.rscja.barcode.BarcodeFactory;
-import com.rscja.deviceapi.entity.BarcodeEntity;
+
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     AutoCompleteTextView recordersACTV, timeACTV;
@@ -34,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
     Button button2, button3, button4, button5, button8;
     LinearLayout scrollLinearLayout;
     DateHandler dateHandler;
-    ScrollViewHandler scrollViewHandler;
 
     EditText editTextText2;
     String TAG = "MainActivity_2D";
@@ -119,8 +116,6 @@ public class MainActivity extends AppCompatActivity {
                 rfid.startScan();
             }
         });
-
-        scrollViewHandler = new ScrollViewHandler(this, scrollLinearLayout, editTextText2, resultTextView);
 
         new InitTask().execute();
     }
