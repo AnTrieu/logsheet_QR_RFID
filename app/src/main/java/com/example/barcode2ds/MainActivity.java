@@ -25,6 +25,8 @@ import com.rscja.barcode.BarcodeDecoder;
 import com.rscja.barcode.BarcodeFactory;
 import com.rscja.deviceapi.entity.BarcodeEntity;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     AutoCompleteTextView recordersACTV, timeACTV;
@@ -45,11 +47,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().hide();
-
-
-
 
         setContentView(R.layout.activity_main);
 
@@ -57,9 +56,10 @@ public class MainActivity extends AppCompatActivity {
         dateHandler = new DateHandler(this, dateTextView);
 
         recordersACTV = findViewById(R.id.ACTV_recorders);
-        RecorderFetcher.fetchRecorders(new RecorderFetcher.RecorderFetchListener() {
+        RecorderFetcher.fetchRecorders(this, new RecorderFetcher.RecorderFetchListener() {
             @Override
-            public void onFetchComplete(final ArrayList<String> recordersList) {
+            public void onFetchComplete(final HashMap<String, String> recordersMap) {
+                ArrayList<String> recordersList = new ArrayList<>(recordersMap.values());
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_dropdown_item_1line, recordersList);
                 recordersACTV.setAdapter(adapter);
                 recordersACTV.setOnClickListener(new View.OnClickListener() {
