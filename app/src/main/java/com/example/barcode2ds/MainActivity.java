@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     BarcodeDecoder barcodeDecoder = BarcodeFactory.getInstance().getBarcodeDecoder();
     QRcode qrCode;
     RFID rfid;
+    private Tagpoint tagpoint;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -83,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
         button8 = findViewById(R.id.button8);
 
         scrollLinearLayout = findViewById(R.id.scrollLinearLayout);
+        tagpoint = new Tagpoint(this, scrollLinearLayout);
 
         AnimationHandler.setButtonAnimation(button2);
         AnimationHandler.setButtonAnimation(button3);
@@ -109,6 +111,12 @@ public class MainActivity extends AppCompatActivity {
 
         resultTextView = findViewById(R.id.TextView);
         rfid = new RFID(this, resultTextView, button8);
+        rfid.setOnRFIDScannedListener(new RFID.OnRFIDScannedListener() {
+            @Override
+            public void onRFIDScanned(String rfidCode) {
+                tagpoint.processRFIDCode(rfidCode);
+            }
+        });
 
         button8.setOnClickListener(new View.OnClickListener() {
             @Override

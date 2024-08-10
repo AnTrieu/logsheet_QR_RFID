@@ -1,19 +1,16 @@
 package com.example.barcode2ds;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
-
-import com.rscja.deviceapi.RFIDWithUHFUART;
-import com.rscja.deviceapi.entity.UHFTAGInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,85 +24,24 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RFID {
-    private static final String TAG = "RFID";
-    private RFIDWithUHFUART mReader;
-    private TextView resultTextView;
-    private Button scanButton;
-    private Context context;
+public class Tagpoint {
+    private static final String TAG = "Tagpoint";
     private static final String SERVER_URL = "https://det.app/DETAPI/LOGSHEET/logsheetdata";
     private static final String TOKEN = "sdfghjkxcvbnmasdfghjkwerg5fabdsfghjkjhgfdsrtyueso";
-    private static final String PREF_NAME = "RFIDPrefs";
+    private static final String PREF_NAME = "TagpointPrefs";
     private static final String PREF_DATA_KEY = "cachedData";
 
-    private List<RFIDData> rfidDataList;
-    private OnRFIDScannedListener listener;
+    private Context context;
+    private List<TagpointData> tagpointDataList;
+    private LinearLayout scrollLinearLayout;
 
-    public interface OnRFIDScannedListener {
-        void onRFIDScanned(String rfidCode);
-    }
-
-    public void setOnRFIDScannedListener(OnRFIDScannedListener listener) {
-        this.listener = listener;
-    }
-
-    public RFID(Context context, TextView resultTextView, Button scanButton) {
+    public Tagpoint(Context context, LinearLayout scrollLinearLayout) {
         this.context = context;
-        this.resultTextView = resultTextView;
-        this.scanButton = scanButton;
-        this.rfidDataList = new ArrayList<>();
-        initUHF();
-
-        scanButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startScan();
-            }
-        });
-
+        this.scrollLinearLayout = scrollLinearLayout;
+        this.tagpointDataList = new ArrayList<>();
         loadCachedData();
         if (isNetworkAvailable()) {
             new FetchDataTask().execute();
-        }
-    }
-
-    private void initUHF() {
-        try {
-            mReader = RFIDWithUHFUART.getInstance();
-        } catch (Exception ex) {
-            Toast.makeText(context, ex.getMessage(), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (mReader != null) {
-            new InitTask().execute();
-        }
-    }
-
-    private class InitTask extends AsyncTask<String, Integer, Boolean> {
-        ProgressDialog progressDialog;
-
-        @Override
-        protected Boolean doInBackground(String... params) {
-            return mReader.init();
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            super.onPostExecute(result);
-            progressDialog.dismiss();
-            if (!result) {
-                Toast.makeText(context, "RFID init failed", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog = new ProgressDialog(context);
-            progressDialog.setMessage("Initializing...");
-            progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.show();
         }
     }
 
@@ -157,28 +93,14 @@ public class RFID {
 
     private void parseAndSaveData(String jsonString) {
         try {
-            Log.d(TAG, "Received JSON: " + jsonString);
             JSONObject jsonObject = new JSONObject(jsonString);
-
-            if (!jsonObject.has("error")) {
-                Log.e(TAG, "JSON does not contain 'error' field");
-                Toast.makeText(context, "Invalid server response", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            String error = jsonObject.getString("error");
-            if (error.isEmpty()) {
-                if (!jsonObject.has("data")) {
-                    Log.e(TAG, "JSON does not contain 'data' field");
-                    Toast.makeText(context, "Invalid server response", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
+            String error = jsonObject.optString("error", null);
+            if (error != null && error.isEmpty()) {
                 JSONArray dataArray = jsonObject.getJSONArray("data");
-                rfidDataList.clear();
+                tagpointDataList.clear();
                 for (int i = 0; i < dataArray.length(); i++) {
                     JSONObject item = dataArray.getJSONObject(i);
-                    RFIDData rfidData = new RFIDData(
+                    TagpointData tagpointData = new TagpointData(
                             item.getString("idinfo"),
                             item.getString("rfidcode"),
                             item.getString("rfiddes"),
@@ -188,10 +110,10 @@ public class RFID {
                             item.optString("max", ""),
                             item.optInt("stt", 0)
                     );
-                    rfidDataList.add(rfidData);
+                    tagpointDataList.add(tagpointData);
                 }
                 saveDataToCache(jsonString);
-                Log.d(TAG, "Parsed " + rfidDataList.size() + " RFID data items");
+                Log.d(TAG, "Parsed " + tagpointDataList.size() + " tagpoint data items");
                 Toast.makeText(context, "Data updated successfully", Toast.LENGTH_SHORT).show();
             } else {
                 Log.e(TAG, "Server returned error: " + error);
@@ -200,9 +122,6 @@ public class RFID {
         } catch (JSONException e) {
             Log.e(TAG, "Error parsing JSON", e);
             Toast.makeText(context, "Error parsing data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Log.e(TAG, "Unexpected error", e);
-            Toast.makeText(context, "Unexpected error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -227,67 +146,42 @@ public class RFID {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public void startScan() {
-        if (mReader != null) {
-            new ScanTask().execute();
-        } else {
-            Toast.makeText(context, "RFID reader not initialized", Toast.LENGTH_SHORT).show();
+    public void processRFIDCode(String rfidCode) {
+        List<TagpointData> matchingData = findMatchingTagpointData(rfidCode);
+        scrollLinearLayout.removeAllViews();
+        for (TagpointData data : matchingData) {
+            createTagpoint(data);
         }
     }
 
-    private class ScanTask extends AsyncTask<Void, Void, UHFTAGInfo> {
-        ProgressDialog progressDialog;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog = new ProgressDialog(context);
-            progressDialog.setMessage("Scanning...");
-            progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.show();
-        }
-
-        @Override
-        protected UHFTAGInfo doInBackground(Void... voids) {
-            return mReader.inventorySingleTag();
-        }
-
-        @Override
-        protected void onPostExecute(UHFTAGInfo result) {
-            super.onPostExecute(result);
-            progressDialog.dismiss();
-            if (result == null) {
-                resultTextView.setText("No tag found");
-            } else {
-                //String scannedRFID = result.getEPC();
-                String scannedRFID ="3102";
-                RFIDData matchedData = findMatchingRFIDData(scannedRFID);
-                if (matchedData != null) {
-                    resultTextView.setText(matchedData.getRfiddes());
-                    if (listener != null) {
-                        listener.onRFIDScanned(scannedRFID);
-                    }
-                } else {
-                    resultTextView.setText("No matching RFID data found for: " + scannedRFID);
-                }
+    private List<TagpointData> findMatchingTagpointData(String rfidCode) {
+        List<TagpointData> matchingData = new ArrayList<>();
+        for (TagpointData data : tagpointDataList) {
+            if (data.getRfidcode().equals(rfidCode)) {
+                matchingData.add(data);
             }
         }
+        return matchingData;
     }
 
-    private RFIDData findMatchingRFIDData(String scannedRFID) {
-        for (RFIDData data : rfidDataList) {
-            if (data.getRfidcode().equals(scannedRFID)) {
-                return data;
-            }
-        }
-        return null;
+    private void createTagpoint(TagpointData data) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View tagpointView = inflater.inflate(R.layout.solieulayout, null);
+
+        EditText editTextValue = tagpointView.findViewById(R.id.editTextValue);
+        EditText editTextNote = tagpointView.findViewById(R.id.editTextNote);
+        EditText editTextText = tagpointView.findViewById(R.id.editTextText);
+
+        editTextText.setText(data.getTagdes());
+
+        scrollLinearLayout.addView(tagpointView);
     }
 
-    private static class RFIDData {
+    private static class TagpointData {
         private String idinfo, rfidcode, rfiddes, qrcode, tagdes, min, max;
         private int stt;
 
-        public RFIDData(String idinfo, String rfidcode, String rfiddes, String qrcode, String tagdes, String min, String max, int stt) {
+        public TagpointData(String idinfo, String rfidcode, String rfiddes, String qrcode, String tagdes, String min, String max, int stt) {
             this.idinfo = idinfo;
             this.rfidcode = rfidcode;
             this.rfiddes = rfiddes;
@@ -302,8 +196,8 @@ public class RFID {
             return rfidcode;
         }
 
-        public String getRfiddes() {
-            return rfiddes;
+        public String getTagdes() {
+            return tagdes;
         }
     }
 }
