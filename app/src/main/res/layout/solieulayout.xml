@@ -7,11 +7,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:backgroundTint="#d5e8d4"
-        android:background="@drawable/rounded_square"
-        android:padding="10dp"
         android:layout_margin="5dp"
-        android:orientation="vertical">
+        android:background="@drawable/rounded_square"
+        android:orientation="vertical"
+        android:padding="10dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -26,7 +25,8 @@
                 android:layout_height="48sp"
                 android:backgroundTint="#FFFFFF"
                 android:hint=" Giá trị"
-                android:textSize="23sp" />
+                android:textSize="23sp"
+                android:inputType="numberDecimal"/>
 
             <EditText
                 android:id="@+id/editTextNote"
@@ -43,8 +43,8 @@
             android:layout_height="48sp"
             android:backgroundTint="#d5e8d4"
             android:ems="10"
-            android:inputType="text"
-            android:hint="Mô tả tagpoint" />
+            android:hint="Mô tả tagpoint"
+            android:inputType="text" />
     </LinearLayout>
 
 </LinearLayout>

@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -50,10 +52,37 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        dateTextView = findViewById(R.id.textview_date);
-        dateHandler = new DateHandler(this, dateTextView);
+        initializeViews();
+        setupDateHandler();
+        setupRecordersACTV();
+        setupTimeACTV();
+        setupButtons();
+        setupTagpoint();
+        setupQRCode();
+        setupRFID();
 
+        new InitTask().execute();
+    }
+
+    private void initializeViews() {
+        dateTextView = findViewById(R.id.textview_date);
         recordersACTV = findViewById(R.id.ACTV_recorders);
+        timeACTV = findViewById(R.id.ACTV_time);
+        button2 = findViewById(R.id.button2);
+        button3 = findViewById(R.id.button3);
+        button4 = findViewById(R.id.button4);
+        button5 = findViewById(R.id.button5);
+        button8 = findViewById(R.id.button8);
+        scrollLinearLayout = findViewById(R.id.scrollLinearLayout);
+        editTextText2 = findViewById(R.id.editTextText2);
+        resultTextView = findViewById(R.id.TextView);
+    }
+
+    private void setupDateHandler() {
+        dateHandler = new DateHandler(this, dateTextView);
+    }
+
+    private void setupRecordersACTV() {
         RecorderFetcher.fetchRecorders(this, new RecorderFetcher.RecorderFetchListener() {
             @Override
             public void onFetchComplete(final HashMap<String, String> recordersMap) {
@@ -73,19 +102,14 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         });
+    }
 
-        timeACTV = findViewById(R.id.ACTV_time);
+    private void setupTimeACTV() {
         TimeHandler.setupTimeAutoCompleteTextView(this, timeACTV);
+    }
 
-        button2 = findViewById(R.id.button2);
-        button3 = findViewById(R.id.button3);
-        button4 = findViewById(R.id.button4);
-        button5 = findViewById(R.id.button5);
-        button8 = findViewById(R.id.button8);
-
-        scrollLinearLayout = findViewById(R.id.scrollLinearLayout);
-        tagpoint = new Tagpoint(this, scrollLinearLayout);
-
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void setupButtons() {
         AnimationHandler.setButtonAnimation(button2);
         AnimationHandler.setButtonAnimation(button3);
         AnimationHandler.setButtonAnimation(button4);
@@ -99,22 +123,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        editTextText2 = findViewById(R.id.editTextText2);
-        qrCode = new QRcode(this, barcodeDecoder, editTextText2);
-
         button4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 qrCode.start();
-            }
-        });
-
-        resultTextView = findViewById(R.id.TextView);
-        rfid = new RFID(this, resultTextView, button8);
-        rfid.setOnRFIDScannedListener(new RFID.OnRFIDScannedListener() {
-            @Override
-            public void onRFIDScanned(String rfidCode) {
-                tagpoint.processRFIDCode(rfidCode);
             }
         });
 
@@ -124,8 +136,36 @@ public class MainActivity extends AppCompatActivity {
                 rfid.startScan();
             }
         });
+    }
 
-        new InitTask().execute();
+    private void setupTagpoint() {
+        tagpoint = new Tagpoint(this, scrollLinearLayout, editTextText2);
+    }
+
+    private void setupQRCode() {
+        qrCode = new QRcode(this, barcodeDecoder, editTextText2);
+        editTextText2.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                tagpoint.processQRCode(s.toString());
+            }
+        });
+    }
+
+    private void setupRFID() {
+        rfid = new RFID(this, resultTextView, button8);
+        rfid.setOnRFIDScannedListener(new RFID.OnRFIDScannedListener() {
+            @Override
+            public void onRFIDScanned(String rfidCode) {
+                tagpoint.processRFIDCode(rfidCode);
+            }
+        });
     }
 
     @Override

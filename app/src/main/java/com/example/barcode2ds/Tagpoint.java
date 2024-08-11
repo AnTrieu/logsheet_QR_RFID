@@ -2,9 +2,12 @@ package com.example.barcode2ds;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +25,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Tagpoint {
@@ -30,19 +35,38 @@ public class Tagpoint {
     private static final String TOKEN = "sdfghjkxcvbnmasdfghjkwerg5fabdsfghjkjhgfdsrtyueso";
     private static final String PREF_NAME = "TagpointPrefs";
     private static final String PREF_DATA_KEY = "cachedData";
+    private static final String PREF_CHANGES_KEY = "userChanges";
 
     private Context context;
     private List<TagpointData> tagpointDataList;
     private LinearLayout scrollLinearLayout;
+    private SharedPreferences prefs;
+    private EditText mainQRCodeEditText;
 
-    public Tagpoint(Context context, LinearLayout scrollLinearLayout) {
+    public Tagpoint(Context context, LinearLayout scrollLinearLayout, EditText mainQRCodeEditText) {
         this.context = context;
         this.scrollLinearLayout = scrollLinearLayout;
+        this.mainQRCodeEditText = mainQRCodeEditText;
         this.tagpointDataList = new ArrayList<>();
+        this.prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         loadCachedData();
         if (isNetworkAvailable()) {
             new FetchDataTask().execute();
         }
+
+        // Add TextWatcher for QR Code in main activity
+        this.mainQRCodeEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                processQRCode(s.toString());
+            }
+        });
     }
 
     private class FetchDataTask extends AsyncTask<Void, Void, String> {
@@ -56,21 +80,20 @@ public class Tagpoint {
                 conn.setDoOutput(true);
 
                 String postData = "action=getdata_logsheet_info&tokenapi=" + TOKEN;
-                try (OutputStream os = conn.getOutputStream()) {
-                    byte[] input = postData.getBytes("utf-8");
-                    os.write(input, 0, input.length);
-                }
+                OutputStream os = conn.getOutputStream();
+                os.write(postData.getBytes("utf-8"));
+                os.close();
 
                 int responseCode = conn.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
-                    try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"))) {
-                        StringBuilder response = new StringBuilder();
-                        String responseLine;
-                        while ((responseLine = br.readLine()) != null) {
-                            response.append(responseLine.trim());
-                        }
-                        return response.toString();
+                    BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    String inputLine;
+                    StringBuffer response = new StringBuffer();
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
                     }
+                    in.close();
+                    return response.toString();
                 } else {
                     Log.e(TAG, "HTTP error code: " + responseCode);
                     return null;
@@ -126,14 +149,12 @@ public class Tagpoint {
     }
 
     private void saveDataToCache(String data) {
-        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PREF_DATA_KEY, data);
         editor.apply();
     }
 
     private void loadCachedData() {
-        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         String cachedData = prefs.getString(PREF_DATA_KEY, null);
         if (cachedData != null) {
             parseAndSaveData(cachedData);
@@ -148,10 +169,27 @@ public class Tagpoint {
 
     public void processRFIDCode(String rfidCode) {
         List<TagpointData> matchingData = findMatchingTagpointData(rfidCode);
-        scrollLinearLayout.removeAllViews();
-        for (TagpointData data : matchingData) {
-            createTagpoint(data);
-        }
+        displayTagpoints(matchingData);
+    }
+
+    public void processQRCode(final String qrCode) {
+        // First, find all tagpoints matching the RFID code
+        List<TagpointData> allTagpoints = new ArrayList<>(tagpointDataList);
+
+        // Then, sort the list so that matching QR codes come first
+        Collections.sort(allTagpoints, new Comparator<TagpointData>() {
+            @Override
+            public int compare(TagpointData a, TagpointData b) {
+                if (a.getQrcode().equals(qrCode) && !b.getQrcode().equals(qrCode)) {
+                    return -1;
+                } else if (!a.getQrcode().equals(qrCode) && b.getQrcode().equals(qrCode)) {
+                    return 1;
+                }
+                return 0;
+            }
+        });
+
+        displayTagpoints(allTagpoints);
     }
 
     private List<TagpointData> findMatchingTagpointData(String rfidCode) {
@@ -164,17 +202,110 @@ public class Tagpoint {
         return matchingData;
     }
 
-    private void createTagpoint(TagpointData data) {
+    private void displayTagpoints(List<TagpointData> dataList) {
+        scrollLinearLayout.removeAllViews();
+        String currentQRCode = mainQRCodeEditText.getText().toString();
+        for (TagpointData data : dataList) {
+            createTagpoint(data, currentQRCode);
+        }
+    }
+
+    private void createTagpoint(final TagpointData data, String currentQRCode) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View tagpointView = inflater.inflate(R.layout.solieulayout, null);
 
-        EditText editTextValue = tagpointView.findViewById(R.id.editTextValue);
-        EditText editTextNote = tagpointView.findViewById(R.id.editTextNote);
-        EditText editTextText = tagpointView.findViewById(R.id.editTextText);
+        final EditText editTextValue = (EditText) tagpointView.findViewById(R.id.editTextValue);
+        EditText editTextNote = (EditText) tagpointView.findViewById(R.id.editTextNote);
+        EditText editTextText = (EditText) tagpointView.findViewById(R.id.editTextText);
 
         editTextText.setText(data.getTagdes());
 
+        // Set background color based on QR code match
+        if (data.getQrcode().equals(currentQRCode)) {
+            tagpointView.setBackgroundColor(Color.parseColor("#d5e8d4"));
+        } else {
+            tagpointView.setBackgroundColor(Color.parseColor("#fff2cc"));
+        }
+
         scrollLinearLayout.addView(tagpointView);
+
+        // Load saved changes
+        String savedValue = loadSavedChange(data.getIdinfo());
+        if (savedValue != null) {
+            editTextValue.setText(savedValue);
+            validateAndColorValue(editTextValue, data);
+        }
+
+        // Add TextWatcher for min-max validation and change tracking
+        editTextValue.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String value = s.toString();
+                validateAndColorValue(editTextValue, data);
+
+                // Save change
+                saveChange(data.getIdinfo(), value);
+            }
+        });
+    }
+
+    private void validateAndColorValue(EditText editText, TagpointData data) {
+        String value = editText.getText().toString();
+        if (!value.isEmpty()) {
+            try {
+                double numValue = Double.parseDouble(value);
+                boolean isValid = true;
+                String message = "";
+
+                if (data.getMin() != null && !data.getMin().isEmpty() && numValue < Double.parseDouble(data.getMin())) {
+                    isValid = false;
+                    message = "Giá trị nhỏ hơn giá trị tối thiểu (" + data.getMin() + ")";
+                } else if (data.getMax() != null && !data.getMax().isEmpty() && numValue > Double.parseDouble(data.getMax())) {
+                    isValid = false;
+                    message = "Giá trị lớn hơn giá trị tối đa (" + data.getMax() + ")";
+                }
+
+                if (isValid) {
+                    editText.setTextColor(Color.BLACK);
+                } else {
+                    editText.setTextColor(Color.RED);
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                }
+            } catch (NumberFormatException e) {
+                editText.setTextColor(Color.RED);
+                Toast.makeText(context, "Vui lòng nhập một số hợp lệ", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            editText.setTextColor(Color.BLACK);
+        }
+    }
+
+    private void saveChange(String idinfo, String value) {
+        try {
+            JSONObject changes = new JSONObject(prefs.getString(PREF_CHANGES_KEY, "{}"));
+            changes.put(idinfo, value);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(PREF_CHANGES_KEY, changes.toString());
+            editor.apply();
+        } catch (JSONException e) {
+            Log.e(TAG, "Error saving change", e);
+        }
+    }
+
+    private String loadSavedChange(String idinfo) {
+        try {
+            JSONObject changes = new JSONObject(prefs.getString(PREF_CHANGES_KEY, "{}"));
+            return changes.optString(idinfo, null);
+        } catch (JSONException e) {
+            Log.e(TAG, "Error loading saved change", e);
+            return null;
+        }
     }
 
     private static class TagpointData {
@@ -192,12 +323,11 @@ public class Tagpoint {
             this.stt = stt;
         }
 
-        public String getRfidcode() {
-            return rfidcode;
-        }
-
-        public String getTagdes() {
-            return tagdes;
-        }
+        public String getIdinfo() { return idinfo; }
+        public String getRfidcode() { return rfidcode; }
+        public String getQrcode() { return qrcode; }
+        public String getTagdes() { return tagdes; }
+        public String getMin() { return min; }
+        public String getMax() { return max; }
     }
 }
