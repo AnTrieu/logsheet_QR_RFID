@@ -265,10 +265,10 @@ public class Tagpoint {
 
                 if (data.getMin() != null && !data.getMin().isEmpty() && numValue < Double.parseDouble(data.getMin())) {
                     isValid = false;
-                    message = "Giá trị nhỏ hơn giá trị tối thiểu (" + data.getMin() + ")";
+                    message = "Giá trị nhập phải lớn hơn " + data.getMin();
                 } else if (data.getMax() != null && !data.getMax().isEmpty() && numValue > Double.parseDouble(data.getMax())) {
                     isValid = false;
-                    message = "Giá trị lớn hơn giá trị tối đa (" + data.getMax() + ")";
+                    message = "Giá trị nhập phải nhỏ hơn " + data.getMax();
                 }
 
                 if (isValid) {
