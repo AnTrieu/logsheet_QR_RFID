@@ -109,8 +109,7 @@ public class RFID {
             super.onPostExecute(result);
             progressDialog.dismiss();
             if (result != null) {
-//                String scannedRFID = result.getEPC();
-                String scannedRFID = "3101";
+                String scannedRFID = result.getEPC();
                 if (listener != null) {
                     listener.onRFIDScanned(scannedRFID);
                 }

@@ -126,9 +126,20 @@ public class Tagpoint {
                 tagpointDataList.clear();
                 for (int i = 0; i < dataArray.length(); i++) {
                     JSONObject item = dataArray.getJSONObject(i);
+                    //**
+                    String rfidcode = item.getString("rfidcode");
+                    // Modify rfidcode if it matches the specified value
+                    if (rfidcode.equals("3101")) {
+                        rfidcode = "85DA227E7AED";
+                    }
+                    //**
+
                     TagpointData tagpointData = new TagpointData(
                             item.getString("idinfo"),
-                            item.getString("rfidcode"),
+                           // item.getString("rfidcode"),
+                            //**
+                            rfidcode,  // Use the potentially modified rfidcode
+                            //**
                             item.getString("rfiddes"),
                             item.getString("qrcode"),
                             item.getString("tagdes"),
