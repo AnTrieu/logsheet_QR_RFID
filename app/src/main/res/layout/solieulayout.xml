@@ -22,9 +22,13 @@
                 android:layout_width="100dp"
                 android:layout_height="48sp"
                 android:background="@drawable/note_value"
-                android:hint="   Giá trị"
+                android:hint="Giá trị"
+                android:gravity="center"
                 android:textSize="23sp"
-                android:inputType="numberDecimal"/>
+                android:inputType="numberDecimal"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:scrollHorizontally="true"/>
 
             <EditText
                 android:id="@+id/editTextNote"
@@ -32,8 +36,12 @@
                 android:layout_height="48sp"
                 android:layout_marginStart="3dp"
                 android:background="@drawable/note_value"
-                android:hint="   Ghi chú"
-                android:textSize="23sp" />
+                android:hint="Ghi chú"
+                android:paddingStart="15sp"
+                android:textSize="23sp"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:scrollHorizontally="true"/>
         </LinearLayout>
 
         <EditText
@@ -42,8 +50,13 @@
             android:layout_height="48sp"
             android:backgroundTint="#d5e8d4"
             android:ems="10"
-            android:inputType="text"
-            android:hint="Mô tả tagpoint" />
+            android:hint="Mô tả tagpoint"
+            android:inputType="none"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:scrollHorizontally="true"/>
     </LinearLayout>
 
 </LinearLayout>
