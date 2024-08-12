@@ -259,8 +259,8 @@ public class RFID {
             if (result == null) {
                 resultTextView.setText("No tag found");
             } else {
-                //String scannedRFID = result.getEPC();
-                String scannedRFID ="3102";
+//                String scannedRFID = result.getEPC();
+                String scannedRFID = "3104";
                 RFIDData matchedData = findMatchingRFIDData(scannedRFID);
                 if (matchedData != null) {
                     resultTextView.setText(matchedData.getRfiddes());

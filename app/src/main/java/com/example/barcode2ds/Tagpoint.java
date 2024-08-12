@@ -15,6 +15,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.example.barcode2ds.R;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,6 +44,7 @@ public class Tagpoint {
     private LinearLayout scrollLinearLayout;
     private SharedPreferences prefs;
     private EditText mainQRCodeEditText;
+    private String currentRFIDCode = "";
 
     public Tagpoint(Context context, LinearLayout scrollLinearLayout, EditText mainQRCodeEditText) {
         this.context = context;
@@ -168,16 +171,23 @@ public class Tagpoint {
     }
 
     public void processRFIDCode(String rfidCode) {
-        List<TagpointData> matchingData = findMatchingTagpointData(rfidCode);
-        displayTagpoints(matchingData);
+        if (!rfidCode.equals(currentRFIDCode)) {
+            currentRFIDCode = rfidCode;
+            List<TagpointData> matchingData = findMatchingTagpointData(rfidCode);
+            displayTagpoints(matchingData);
+        }
     }
 
     public void processQRCode(final String qrCode) {
-        // First, find all tagpoints matching the RFID code
-        List<TagpointData> allTagpoints = new ArrayList<>(tagpointDataList);
+        if (currentRFIDCode.isEmpty()) {
+            // Nếu chưa có RFID code, không làm gì cả
+            return;
+        }
 
-        // Then, sort the list so that matching QR codes come first
-        Collections.sort(allTagpoints, new Comparator<TagpointData>() {
+        List<TagpointData> matchingRFIDTagpoints = findMatchingTagpointData(currentRFIDCode);
+
+        // Sắp xếp danh sách để các tagpoint có QR code phù hợp lên đầu
+        Collections.sort(matchingRFIDTagpoints, new Comparator<TagpointData>() {
             @Override
             public int compare(TagpointData a, TagpointData b) {
                 if (a.getQrcode().equals(qrCode) && !b.getQrcode().equals(qrCode)) {
@@ -189,7 +199,7 @@ public class Tagpoint {
             }
         });
 
-        displayTagpoints(allTagpoints);
+        displayTagpoints(matchingRFIDTagpoints);
     }
 
     private List<TagpointData> findMatchingTagpointData(String rfidCode) {
@@ -223,11 +233,22 @@ public class Tagpoint {
         // Set background color based on QR code match
         if (data.getQrcode().equals(currentQRCode)) {
             tagpointView.setBackgroundColor(Color.parseColor("#d5e8d4"));
+            tagpointView.setBackground(context.getResources().getDrawable(R.drawable.tagpoint_border_green));
         } else {
             tagpointView.setBackgroundColor(Color.parseColor("#fff2cc"));
+            tagpointView.setBackground(context.getResources().getDrawable(R.drawable.tagpoint_border_orange));
         }
 
         scrollLinearLayout.addView(tagpointView);
+
+        // Add a 5dp space after each tagpoint
+        View spacerView = new View(context);
+        LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                (int) (5 * context.getResources().getDisplayMetrics().density)
+        );
+        spacerView.setLayoutParams(spacerParams);
+        scrollLinearLayout.addView(spacerView);
 
         // Load saved changes
         String savedValue = loadSavedChange(data.getIdinfo());
