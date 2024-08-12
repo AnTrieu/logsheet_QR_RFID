@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupTagpoint() {
-        tagpoint = new Tagpoint(this, scrollLinearLayout, editTextText2);
+        tagpoint = new Tagpoint(this, scrollLinearLayout, editTextText2, resultTextView);
     }
 
     private void setupQRCode() {
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupRFID() {
-        rfid = new RFID(this, resultTextView, button8);
+        rfid = new RFID(this, button8);
         rfid.setOnRFIDScannedListener(new RFID.OnRFIDScannedListener() {
             @Override
             public void onRFIDScanned(String rfidCode) {

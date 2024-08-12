@@ -13,9 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import com.example.barcode2ds.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,11 +44,13 @@ public class Tagpoint {
     private SharedPreferences prefs;
     private EditText mainQRCodeEditText;
     private String currentRFIDCode = "";
+    private TextView resultTextView;
 
-    public Tagpoint(Context context, LinearLayout scrollLinearLayout, EditText mainQRCodeEditText) {
+    public Tagpoint(Context context, LinearLayout scrollLinearLayout, EditText mainQRCodeEditText, TextView resultTextView) {
         this.context = context;
         this.scrollLinearLayout = scrollLinearLayout;
         this.mainQRCodeEditText = mainQRCodeEditText;
+        this.resultTextView = resultTextView;
         this.tagpointDataList = new ArrayList<>();
         this.prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         loadCachedData();
@@ -57,7 +58,6 @@ public class Tagpoint {
             new FetchDataTask().execute();
         }
 
-        // Add TextWatcher for QR Code in main activity
         this.mainQRCodeEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -175,18 +175,21 @@ public class Tagpoint {
             currentRFIDCode = rfidCode;
             List<TagpointData> matchingData = findMatchingTagpointData(rfidCode);
             displayTagpoints(matchingData);
+            if (!matchingData.isEmpty()) {
+                resultTextView.setText(matchingData.get(0).getRfiddes());
+            } else {
+                resultTextView.setText("No matching RFID data found");
+            }
         }
     }
 
     public void processQRCode(final String qrCode) {
         if (currentRFIDCode.isEmpty()) {
-            // Nếu chưa có RFID code, không làm gì cả
             return;
         }
 
         List<TagpointData> matchingRFIDTagpoints = findMatchingTagpointData(currentRFIDCode);
 
-        // Sắp xếp danh sách để các tagpoint có QR code phù hợp lên đầu
         Collections.sort(matchingRFIDTagpoints, new Comparator<TagpointData>() {
             @Override
             public int compare(TagpointData a, TagpointData b) {
@@ -230,7 +233,6 @@ public class Tagpoint {
 
         editTextText.setText(data.getTagdes());
 
-        // Set background color based on QR code match
         if (data.getQrcode().equals(currentQRCode)) {
             tagpointView.setBackgroundColor(Color.parseColor("#d5e8d4"));
             tagpointView.setBackground(context.getResources().getDrawable(R.drawable.tagpoint_border_green));
@@ -241,7 +243,6 @@ public class Tagpoint {
 
         scrollLinearLayout.addView(tagpointView);
 
-        // Add a 5dp space after each tagpoint
         View spacerView = new View(context);
         LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -250,14 +251,12 @@ public class Tagpoint {
         spacerView.setLayoutParams(spacerParams);
         scrollLinearLayout.addView(spacerView);
 
-        // Load saved changes
         String savedValue = loadSavedChange(data.getIdinfo());
         if (savedValue != null) {
             editTextValue.setText(savedValue);
             validateAndColorValue(editTextValue, data);
         }
 
-        // Add TextWatcher for min-max validation and change tracking
         editTextValue.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -269,8 +268,6 @@ public class Tagpoint {
             public void afterTextChanged(Editable s) {
                 String value = s.toString();
                 validateAndColorValue(editTextValue, data);
-
-                // Save change
                 saveChange(data.getIdinfo(), value);
             }
         });
@@ -346,6 +343,7 @@ public class Tagpoint {
 
         public String getIdinfo() { return idinfo; }
         public String getRfidcode() { return rfidcode; }
+        public String getRfiddes() { return rfiddes; }
         public String getQrcode() { return qrcode; }
         public String getTagdes() { return tagdes; }
         public String getMin() { return min; }

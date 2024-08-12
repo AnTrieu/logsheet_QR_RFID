@@ -2,43 +2,20 @@ package com.example.barcode2ds;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.deviceapi.entity.UHFTAGInfo;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
 public class RFID {
     private static final String TAG = "RFID";
     private RFIDWithUHFUART mReader;
-    private TextView resultTextView;
     private Button scanButton;
     private Context context;
-    private static final String SERVER_URL = "https://det.app/DETAPI/LOGSHEET/logsheetdata";
-    private static final String TOKEN = "sdfghjkxcvbnmasdfghjkwerg5fabdsfghjkjhgfdsrtyueso";
-    private static final String PREF_NAME = "RFIDPrefs";
-    private static final String PREF_DATA_KEY = "cachedData";
-
-    private List<RFIDData> rfidDataList;
     private OnRFIDScannedListener listener;
 
     public interface OnRFIDScannedListener {
@@ -49,11 +26,9 @@ public class RFID {
         this.listener = listener;
     }
 
-    public RFID(Context context, TextView resultTextView, Button scanButton) {
+    public RFID(Context context, Button scanButton) {
         this.context = context;
-        this.resultTextView = resultTextView;
         this.scanButton = scanButton;
-        this.rfidDataList = new ArrayList<>();
         initUHF();
 
         scanButton.setOnClickListener(new View.OnClickListener() {
@@ -62,11 +37,6 @@ public class RFID {
                 startScan();
             }
         });
-
-        loadCachedData();
-        if (isNetworkAvailable()) {
-            new FetchDataTask().execute();
-        }
     }
 
     private void initUHF() {
@@ -109,124 +79,6 @@ public class RFID {
         }
     }
 
-    private class FetchDataTask extends AsyncTask<Void, Void, String> {
-        @Override
-        protected String doInBackground(Void... voids) {
-            try {
-                URL url = new URL(SERVER_URL);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                conn.setDoOutput(true);
-
-                String postData = "action=getdata_logsheet_info&tokenapi=" + TOKEN;
-                try (OutputStream os = conn.getOutputStream()) {
-                    byte[] input = postData.getBytes("utf-8");
-                    os.write(input, 0, input.length);
-                }
-
-                int responseCode = conn.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"))) {
-                        StringBuilder response = new StringBuilder();
-                        String responseLine;
-                        while ((responseLine = br.readLine()) != null) {
-                            response.append(responseLine.trim());
-                        }
-                        return response.toString();
-                    }
-                } else {
-                    Log.e(TAG, "HTTP error code: " + responseCode);
-                    return null;
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error fetching data", e);
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            if (result != null) {
-                parseAndSaveData(result);
-            } else {
-                Toast.makeText(context, "Failed to fetch data from server", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    private void parseAndSaveData(String jsonString) {
-        try {
-            Log.d(TAG, "Received JSON: " + jsonString);
-            JSONObject jsonObject = new JSONObject(jsonString);
-
-            if (!jsonObject.has("error")) {
-                Log.e(TAG, "JSON does not contain 'error' field");
-                Toast.makeText(context, "Invalid server response", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            String error = jsonObject.getString("error");
-            if (error.isEmpty()) {
-                if (!jsonObject.has("data")) {
-                    Log.e(TAG, "JSON does not contain 'data' field");
-                    Toast.makeText(context, "Invalid server response", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                JSONArray dataArray = jsonObject.getJSONArray("data");
-                rfidDataList.clear();
-                for (int i = 0; i < dataArray.length(); i++) {
-                    JSONObject item = dataArray.getJSONObject(i);
-                    RFIDData rfidData = new RFIDData(
-                            item.getString("idinfo"),
-                            item.getString("rfidcode"),
-                            item.getString("rfiddes"),
-                            item.getString("qrcode"),
-                            item.getString("tagdes"),
-                            item.optString("min", ""),
-                            item.optString("max", ""),
-                            item.optInt("stt", 0)
-                    );
-                    rfidDataList.add(rfidData);
-                }
-                saveDataToCache(jsonString);
-                Log.d(TAG, "Parsed " + rfidDataList.size() + " RFID data items");
-                Toast.makeText(context, "Data updated successfully", Toast.LENGTH_SHORT).show();
-            } else {
-                Log.e(TAG, "Server returned error: " + error);
-                Toast.makeText(context, "Error: " + error, Toast.LENGTH_SHORT).show();
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "Error parsing JSON", e);
-            Toast.makeText(context, "Error parsing data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Log.e(TAG, "Unexpected error", e);
-            Toast.makeText(context, "Unexpected error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void saveDataToCache(String data) {
-        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(PREF_DATA_KEY, data);
-        editor.apply();
-    }
-
-    private void loadCachedData() {
-        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        String cachedData = prefs.getString(PREF_DATA_KEY, null);
-        if (cachedData != null) {
-            parseAndSaveData(cachedData);
-        }
-    }
-
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
     public void startScan() {
         if (mReader != null) {
             new ScanTask().execute();
@@ -256,54 +108,15 @@ public class RFID {
         protected void onPostExecute(UHFTAGInfo result) {
             super.onPostExecute(result);
             progressDialog.dismiss();
-            if (result == null) {
-                resultTextView.setText("No tag found");
-            } else {
+            if (result != null) {
 //                String scannedRFID = result.getEPC();
-                String scannedRFID = "3104";
-                RFIDData matchedData = findMatchingRFIDData(scannedRFID);
-                if (matchedData != null) {
-                    resultTextView.setText(matchedData.getRfiddes());
-                    if (listener != null) {
-                        listener.onRFIDScanned(scannedRFID);
-                    }
-                } else {
-                    resultTextView.setText("No matching RFID data found for: " + scannedRFID);
+                String scannedRFID = "3101";
+                if (listener != null) {
+                    listener.onRFIDScanned(scannedRFID);
                 }
+            } else {
+                Toast.makeText(context, "No tag found", Toast.LENGTH_SHORT).show();
             }
-        }
-    }
-
-    private RFIDData findMatchingRFIDData(String scannedRFID) {
-        for (RFIDData data : rfidDataList) {
-            if (data.getRfidcode().equals(scannedRFID)) {
-                return data;
-            }
-        }
-        return null;
-    }
-
-    private static class RFIDData {
-        private String idinfo, rfidcode, rfiddes, qrcode, tagdes, min, max;
-        private int stt;
-
-        public RFIDData(String idinfo, String rfidcode, String rfiddes, String qrcode, String tagdes, String min, String max, int stt) {
-            this.idinfo = idinfo;
-            this.rfidcode = rfidcode;
-            this.rfiddes = rfiddes;
-            this.qrcode = qrcode;
-            this.tagdes = tagdes;
-            this.min = min;
-            this.max = max;
-            this.stt = stt;
-        }
-
-        public String getRfidcode() {
-            return rfidcode;
-        }
-
-        public String getRfiddes() {
-            return rfiddes;
         }
     }
 }
