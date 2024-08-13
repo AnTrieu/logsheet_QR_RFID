@@ -16,16 +16,11 @@ public class Clear {
     }
 
     public void clearTagpointData() {
-        // Clear saved changes
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.remove(PREF_CHANGES_KEY);
         editor.apply();
-
-        // Notify user
         Toast.makeText(context, "All saved tagpoint data has been cleared", Toast.LENGTH_SHORT).show();
-
-        // Reinitialize Tagpoint
         tagpoint.reInitialize();
     }
 }

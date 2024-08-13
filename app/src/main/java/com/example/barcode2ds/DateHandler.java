@@ -17,18 +17,13 @@ public class DateHandler {
     private Calendar calendar;
     private Context context;
     private TextView dateTextView;
-    private SharedPreferences prefs;
-    private static final String PREF_NAME = "TagpointPrefs";
-    private static final String PREF_DATE_KEY = "savedDate";
 
     public DateHandler(final Context context, TextView dateTextView) {
         this.context = context;
         this.dateTextView = dateTextView;
         calendar = Calendar.getInstance();
-        prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        updateDateLabel();
 
-        // Load saved date
-        loadSavedDate();
 
         dateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,9 +39,6 @@ public class DateHandler {
         String myFormat = "dd/MM/yyyy"; // In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
         dateTextView.setText(sdf.format(calendar.getTime()));
-
-        // Save the date
-        saveDate(sdf.format(calendar.getTime()));
     }
 
     private DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
@@ -58,24 +50,5 @@ public class DateHandler {
             updateDateLabel();
         }
     };
-
-    private void saveDate(String date) {
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(PREF_DATE_KEY, date);
-        editor.apply();
-    }
-
-    private void loadSavedDate() {
-        String savedDate = prefs.getString(PREF_DATE_KEY, null);
-        if (savedDate != null) {
-            try {
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
-                calendar.setTime(sdf.parse(savedDate));
-                updateDateLabel();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }
 

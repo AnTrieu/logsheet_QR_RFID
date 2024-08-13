@@ -195,24 +195,15 @@ public class Tagpoint {
     }
 
     public void reInitialize() {
-        // Clear existing data
         tagpointDataList.clear();
         scrollLinearLayout.removeAllViews();
-
-        // Reload data from cache or server
         if (isNetworkAvailable()) {
             new FetchDataTask().execute();
         } else {
             loadCachedData();
         }
-
-        // Reset current RFID code
         currentRFIDCode = "";
-
-        // Clear main QR code input
         mainQRCodeEditText.setText("");
-
-        // Clear result text view
         resultTextView.setText("");
     }
 

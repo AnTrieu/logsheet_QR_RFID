@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     RFID rfid;
     private Tagpoint tagpoint;
     private Clear clear;
+    private Sync sync;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -61,15 +62,18 @@ public class MainActivity extends AppCompatActivity {
         setupTagpoint();
         setupQRCode();
         setupRFID();
-        setupTagpoint();
         setupClear();
-        setupButtons();
+        setupSync();
 
         new InitTask().execute();
     }
 
     private void setupClear() {
         clear = new Clear(this, tagpoint);
+    }
+
+    private void setupSync() {
+        sync = new Sync(this, dateTextView, timeACTV, recordersACTV, clear);
     }
 
     private void initializeViews() {
@@ -134,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         button5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Sync.syncData(MainActivity.this, dateTextView, timeACTV, recordersACTV, scrollLinearLayout);
+                sync.syncData();
             }
         });
 
