@@ -136,7 +136,7 @@ public class Tagpoint {
 
                     TagpointData tagpointData = new TagpointData(
                             item.getString("idinfo"),
-                           // item.getString("rfidcode"),
+                            // item.getString("rfidcode"),
                             //**
                             rfidcode,  // Use the potentially modified rfidcode
                             //**
@@ -239,7 +239,7 @@ public class Tagpoint {
         View tagpointView = inflater.inflate(R.layout.solieulayout, null);
 
         final EditText editTextValue = (EditText) tagpointView.findViewById(R.id.editTextValue);
-        EditText editTextNote = (EditText) tagpointView.findViewById(R.id.editTextNote);
+        final EditText editTextNote = (EditText) tagpointView.findViewById(R.id.editTextNote);
         EditText editTextText = (EditText) tagpointView.findViewById(R.id.editTextText);
 
         editTextText.setText(data.getTagdes());
@@ -262,12 +262,15 @@ public class Tagpoint {
         spacerView.setLayoutParams(spacerParams);
         scrollLinearLayout.addView(spacerView);
 
-        String savedValue = loadSavedChange(data.getIdinfo());
-        if (savedValue != null) {
-            editTextValue.setText(savedValue);
+        // Load saved values
+        JSONObject savedValues = loadSavedValues(data.getIdinfo());
+        if (savedValues != null) {
+            editTextValue.setText(savedValues.optString("value", ""));
+            editTextNote.setText(savedValues.optString("note", ""));
             validateAndColorValue(editTextValue, data);
         }
 
+        // Add TextWatcher for editTextValue
         editTextValue.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -279,7 +282,21 @@ public class Tagpoint {
             public void afterTextChanged(Editable s) {
                 String value = s.toString();
                 validateAndColorValue(editTextValue, data);
-                saveChange(data.getIdinfo(), value);
+                saveValues(data.getIdinfo(), value, editTextNote.getText().toString());
+            }
+        });
+
+        // Add TextWatcher for editTextNote
+        editTextNote.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                saveValues(data.getIdinfo(), editTextValue.getText().toString(), s.toString());
             }
         });
     }
@@ -315,24 +332,27 @@ public class Tagpoint {
         }
     }
 
-    private void saveChange(String idinfo, String value) {
+    private void saveValues(String idinfo, String value, String note) {
         try {
             JSONObject changes = new JSONObject(prefs.getString(PREF_CHANGES_KEY, "{}"));
-            changes.put(idinfo, value);
+            JSONObject values = new JSONObject();
+            values.put("value", value);
+            values.put("note", note);
+            changes.put(idinfo, values);
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(PREF_CHANGES_KEY, changes.toString());
             editor.apply();
         } catch (JSONException e) {
-            Log.e(TAG, "Error saving change", e);
+            Log.e(TAG, "Error saving values", e);
         }
     }
 
-    private String loadSavedChange(String idinfo) {
+    private JSONObject loadSavedValues(String idinfo) {
         try {
             JSONObject changes = new JSONObject(prefs.getString(PREF_CHANGES_KEY, "{}"));
-            return changes.optString(idinfo, null);
+            return changes.optJSONObject(idinfo);
         } catch (JSONException e) {
-            Log.e(TAG, "Error loading saved change", e);
+            Log.e(TAG, "Error loading saved values", e);
             return null;
         }
     }
