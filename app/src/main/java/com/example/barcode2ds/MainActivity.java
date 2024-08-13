@@ -1,6 +1,7 @@
 package com.example.barcode2ds;
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -43,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
     private Tagpoint tagpoint;
     private Clear clear;
     private Sync sync;
+
+    private static final String PREF_NAME = "MyPrefs";
+    private static final String RECORDER_KEY = "recorder";
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -107,6 +111,26 @@ public class MainActivity extends AppCompatActivity {
                         recordersACTV.showDropDown();
                     }
                 });
+
+                // Load saved recorder value
+                String savedRecorder = getSavedRecorder();
+                if (savedRecorder != null && !savedRecorder.isEmpty()) {
+                    recordersACTV.setText(savedRecorder);
+                }
+
+                // Add TextWatcher to save recorder value when changed
+                recordersACTV.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        saveRecorder(s.toString());
+                    }
+                });
             }
 
             @Override
@@ -114,6 +138,18 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         });
+    }
+
+    private void saveRecorder(String recorder) {
+        SharedPreferences sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(RECORDER_KEY, recorder);
+        editor.apply();
+    }
+
+    private String getSavedRecorder() {
+        SharedPreferences sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        return sharedPreferences.getString(RECORDER_KEY, "");
     }
 
     private void setupTimeACTV() {
