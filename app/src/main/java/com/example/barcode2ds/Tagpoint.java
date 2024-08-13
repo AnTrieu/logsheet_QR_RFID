@@ -189,9 +189,31 @@ public class Tagpoint {
             if (!matchingData.isEmpty()) {
                 resultTextView.setText(matchingData.get(0).getRfiddes());
             } else {
-                resultTextView.setText("No matching RFID data found");
+                resultTextView.setText("No matching RFID data found for: " + currentRFIDCode);
             }
         }
+    }
+
+    public void reInitialize() {
+        // Clear existing data
+        tagpointDataList.clear();
+        scrollLinearLayout.removeAllViews();
+
+        // Reload data from cache or server
+        if (isNetworkAvailable()) {
+            new FetchDataTask().execute();
+        } else {
+            loadCachedData();
+        }
+
+        // Reset current RFID code
+        currentRFIDCode = "";
+
+        // Clear main QR code input
+        mainQRCodeEditText.setText("");
+
+        // Clear result text view
+        resultTextView.setText("");
     }
 
     public void processQRCode(final String qrCode) {

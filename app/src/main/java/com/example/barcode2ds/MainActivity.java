@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     QRcode qrCode;
     RFID rfid;
     private Tagpoint tagpoint;
+    private Clear clear;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -60,8 +61,15 @@ public class MainActivity extends AppCompatActivity {
         setupTagpoint();
         setupQRCode();
         setupRFID();
+        setupTagpoint();
+        setupClear();
+        setupButtons();
 
         new InitTask().execute();
+    }
+
+    private void setupClear() {
+        clear = new Clear(this, tagpoint);
     }
 
     private void initializeViews() {
@@ -115,6 +123,13 @@ public class MainActivity extends AppCompatActivity {
         AnimationHandler.setButtonAnimation(button4);
         AnimationHandler.setButtonAnimation(button5);
         AnimationHandler.setButtonAnimation(button8);
+
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clear.clearTagpointData();
+            }
+        });
 
         button5.setOnClickListener(new View.OnClickListener() {
             @Override
