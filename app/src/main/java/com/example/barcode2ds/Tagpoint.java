@@ -251,18 +251,28 @@ public class Tagpoint {
         LayoutInflater inflater = LayoutInflater.from(context);
         View tagpointView = inflater.inflate(R.layout.solieulayout, null);
 
-        final EditText editTextValue = (EditText) tagpointView.findViewById(R.id.editTextValue);
-        final EditText editTextNote = (EditText) tagpointView.findViewById(R.id.editTextNote);
-        EditText editTextText = (EditText) tagpointView.findViewById(R.id.editTextText);
+        final EditText editTextValue = tagpointView.findViewById(R.id.editTextValue);
+        final EditText editTextNote = tagpointView.findViewById(R.id.editTextNote);
+        EditText editTextText = tagpointView.findViewById(R.id.editTextText);
 
         editTextText.setText(data.getTagdes());
 
-        if (data.getQrcode().equals(currentQRCode)) {
+        boolean isMatchingQRCode = data.getQrcode().equals(currentQRCode);
+
+        if (isMatchingQRCode) {
             tagpointView.setBackgroundColor(Color.parseColor("#d5e8d4"));
             tagpointView.setBackground(context.getResources().getDrawable(R.drawable.tagpoint_border_green));
+
+            // Cho phép chỉnh sửa
+            enableEditing(editTextValue);
+            enableEditing(editTextNote);
         } else {
             tagpointView.setBackgroundColor(Color.parseColor("#fff2cc"));
             tagpointView.setBackground(context.getResources().getDrawable(R.drawable.tagpoint_border_orange));
+
+            // Vô hiệu hóa chỉnh sửa
+            disableEditing(editTextValue);
+            disableEditing(editTextNote);
         }
 
         scrollLinearLayout.addView(tagpointView);
@@ -280,10 +290,35 @@ public class Tagpoint {
         if (savedValues != null) {
             editTextValue.setText(savedValues.optString("value", ""));
             editTextNote.setText(savedValues.optString("note", ""));
-            validateAndColorValue(editTextValue, data);
+            if (isMatchingQRCode) {
+                validateAndColorValue(editTextValue, data);
+            }
         }
 
-        // Add TextWatcher for editTextValue
+        if (isMatchingQRCode) {
+            // Chỉ thêm TextWatcher nếu QR code phù hợp
+            addTextWatchers(editTextValue, editTextNote, data);
+        }
+    }
+
+    private void enableEditing(EditText editText) {
+        editText.setFocusable(true);
+        editText.setFocusableInTouchMode(true);
+        editText.setClickable(true);
+        editText.setLongClickable(true);
+        editText.setCursorVisible(true);
+    }
+
+    private void disableEditing(EditText editText) {
+        editText.setFocusable(false);
+        editText.setFocusableInTouchMode(false);
+        editText.setClickable(false);
+        editText.setLongClickable(false);
+        editText.setCursorVisible(false);
+    }
+
+    // Add TextWatcher for editTextValue
+    private void addTextWatchers(final EditText editTextValue, final EditText editTextNote, final TagpointData data) {
         editTextValue.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -298,7 +333,7 @@ public class Tagpoint {
                 saveValues(data.getIdinfo(), value, editTextNote.getText().toString());
             }
         });
-
+        
         // Add TextWatcher for editTextNote
         editTextNote.addTextChangedListener(new TextWatcher() {
             @Override
