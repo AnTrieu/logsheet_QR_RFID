@@ -10,6 +10,7 @@
     <string name="uhf_msg_write_fail">RFID write failed</string>
 
     <string-array name="frequency_modes">
+        <item>China 840-845MHz</item>
         <item>China 920-925MHz</item>
         <item>ETSI 865-868MHz</item>
         <item>United States 902-928MHz</item>

@@ -2,6 +2,7 @@ package com.example.barcode2ds;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,6 +20,7 @@ public class SETUP {
     private RFIDWithUHFUART mReader;
     private TextView tvCurrentFrequency;
     private TextView tvCurrentPower;
+    private Spinner spFrequency;
 
     public SETUP(Context context, RFIDWithUHFUART reader) {
         this.context = context;
@@ -33,7 +35,7 @@ public class SETUP {
 
         final AlertDialog dialog = builder.create();
 
-        final Spinner spFrequency = dialogView.findViewById(R.id.spFrequency);
+        spFrequency = dialogView.findViewById(R.id.spFrequency);
         final Spinner spPower = dialogView.findViewById(R.id.spPower);
         final EditText etWriteData = dialogView.findViewById(R.id.etWriteData);
         Button btnSetFrequency = dialogView.findViewById(R.id.btnSetFrequency);
@@ -92,9 +94,14 @@ public class SETUP {
         String[] frequencyModes = context.getResources().getStringArray(R.array.frequency_modes);
         if (frequencyMode >= 0 && frequencyMode < frequencyModes.length) {
             tvCurrentFrequency.setText("Current Frequency: " + frequencyModes[frequencyMode]);
+            // Set the spinner to the current frequency
+            spFrequency.setSelection(frequencyMode);
         } else {
-            tvCurrentFrequency.setText("Current Frequency: Unknown");
+            tvCurrentFrequency.setText("Current Frequency: Unknown (Mode: " + frequencyMode + ")");
         }
+
+        // Log the current frequency mode
+        Log.d("SETUP", "Current frequency mode: " + frequencyMode);
 
         // Get current power
         int power = mReader.getPower();
@@ -102,11 +109,18 @@ public class SETUP {
     }
 
     private void setFrequency(int mode) {
+        Log.d("SETUP", "Setting frequency mode to: " + mode);
         if (mReader.setFrequencyMode((byte) mode)) {
             Toast.makeText(context, R.string.uhf_msg_set_frequency_succ, Toast.LENGTH_SHORT).show();
+            Log.d("SETUP", "Set frequency successful");
         } else {
             Toast.makeText(context, R.string.uhf_msg_set_frequency_fail, Toast.LENGTH_SHORT).show();
+            Log.e("SETUP", "Set frequency failed");
         }
+
+        // Verify the set frequency
+        byte newFrequencyMode = (byte) mReader.getFrequencyMode();
+        Log.d("SETUP", "New frequency mode after setting: " + newFrequencyMode);
     }
 
     private void setPower(int power) {

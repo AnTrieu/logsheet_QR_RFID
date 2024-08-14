@@ -110,8 +110,13 @@ public class RFID {
             progressDialog.dismiss();
             if (result != null) {
                 String scannedRFID = result.getEPC();
-                if (listener != null) {
-                    listener.onRFIDScanned(scannedRFID);
+                if (scannedRFID.length() >= 4) {
+                    scannedRFID = scannedRFID.substring(0, 4);
+                    if (listener != null) {
+                        listener.onRFIDScanned(scannedRFID);
+                    }
+                } else {
+                    Toast.makeText(context, "RFID code too short", Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Toast.makeText(context, "No tag found", Toast.LENGTH_SHORT).show();
