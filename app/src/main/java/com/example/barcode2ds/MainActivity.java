@@ -1,7 +1,6 @@
 package com.example.barcode2ds;
 
 import android.app.ProgressDialog;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,21 +12,25 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.rscja.barcode.BarcodeDecoder;
 import com.rscja.barcode.BarcodeFactory;
+import com.rscja.deviceapi.RFIDWithUHFUART;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     AutoCompleteTextView recordersACTV, timeACTV;
@@ -44,9 +47,10 @@ public class MainActivity extends AppCompatActivity {
     private Tagpoint tagpoint;
     private Clear clear;
     private Sync sync;
-
-    private static final String PREF_NAME = "MyPrefs";
-    private static final String RECORDER_KEY = "recorder";
+    private SETUP setup;
+    private RFIDWithUHFUART mReader;
+    private ArrayAdapter<String> recordersAdapter;
+    private HashMap<String, String> recordersMap;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -68,6 +72,15 @@ public class MainActivity extends AppCompatActivity {
         setupRFID();
         setupClear();
         setupSync();
+
+        try {
+            mReader = RFIDWithUHFUART.getInstance();
+        } catch (Exception e) {
+            Toast.makeText(this, "RFID module initialization failed", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+
+        setup = new SETUP(this, mReader);
 
         new InitTask().execute();
     }
@@ -99,57 +112,75 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupRecordersACTV() {
+        recordersAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line);
+        recordersACTV.setAdapter(recordersAdapter);
+        recordersMap = new HashMap<>();
+
         RecorderFetcher.fetchRecorders(this, new RecorderFetcher.RecorderFetchListener() {
             @Override
-            public void onFetchComplete(final HashMap<String, String> recordersMap) {
-                ArrayList<String> recordersList = new ArrayList<>(recordersMap.values());
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_dropdown_item_1line, recordersList);
-                recordersACTV.setAdapter(adapter);
-                recordersACTV.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        recordersACTV.showDropDown();
-                    }
-                });
-
-                // Load saved recorder value
-                String savedRecorder = getSavedRecorder();
-                if (savedRecorder != null && !savedRecorder.isEmpty()) {
-                    recordersACTV.setText(savedRecorder);
-                }
-
-                // Add TextWatcher to save recorder value when changed
-                recordersACTV.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        saveRecorder(s.toString());
-                    }
-                });
+            public void onFetchComplete(HashMap<String, String> fetchedRecordersMap, String lastSelectedRecorder) {
+                updateRecordersList(fetchedRecordersMap, lastSelectedRecorder);
             }
 
             @Override
             public void onFetchFailed(Exception e) {
                 e.printStackTrace();
+                Toast.makeText(MainActivity.this, "Failed to fetch recorders", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        recordersACTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recordersACTV.showDropDown();
+            }
+        });
+
+        recordersACTV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selectedGiatri = (String) parent.getItemAtPosition(position);
+                String selectedMa = recordersMap.get(selectedGiatri);
+                // Ở đây bạn có thể sử dụng selectedMa cho việc upload hoặc các mục đích khác
+                Log.d("Selected Recorder", "Giatri: " + selectedGiatri + ", Ma: " + selectedMa);
             }
         });
     }
 
-    private void saveRecorder(String recorder) {
-        SharedPreferences sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(RECORDER_KEY, recorder);
-        editor.apply();
+    private void updateRecordersList(HashMap<String, String> fetchedRecordersMap, String lastSelectedRecorder) {
+        recordersAdapter.clear();
+        recordersMap.clear();
+
+        for (Map.Entry<String, String> entry : fetchedRecordersMap.entrySet()) {
+            String ma = entry.getKey();
+            String giatri = entry.getValue();
+            recordersAdapter.add(giatri);
+            recordersMap.put(giatri, ma);
+        }
+        recordersAdapter.notifyDataSetChanged();
+
+        if (!lastSelectedRecorder.isEmpty()) {
+            String[] parts = lastSelectedRecorder.split(";");
+            if (parts.length == 2 && recordersMap.containsKey(parts[0])) {
+                recordersACTV.setText(parts[0]);
+            } else {
+                recordersACTV.setText("");
+            }
+        } else {
+            recordersACTV.setText("");
+        }
     }
 
-    private String getSavedRecorder() {
-        SharedPreferences sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-        return sharedPreferences.getString(RECORDER_KEY, "");
+    @Override
+    protected void onPause() {
+        super.onPause();
+        String selectedGiatri = recordersACTV.getText().toString();
+        if (!selectedGiatri.isEmpty()) {
+            String selectedMa = recordersMap.get(selectedGiatri);
+            if (selectedMa != null) {
+                RecorderFetcher.saveLastSelectedRecorder(this, selectedGiatri + ";" + selectedMa);
+            }
+        }
     }
 
     private void setupTimeACTV() {
@@ -163,6 +194,14 @@ public class MainActivity extends AppCompatActivity {
         AnimationHandler.setButtonAnimation(button4);
         AnimationHandler.setButtonAnimation(button5);
         AnimationHandler.setButtonAnimation(button8);
+
+        Button button3 = findViewById(R.id.button3);
+        button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setup.showSetupPopup();
+            }
+        });
 
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
