@@ -10,11 +10,12 @@
     <string name="uhf_msg_write_fail">RFID write failed</string>
 
     <string-array name="frequency_modes">
-        <item>China 840-845MHz</item>
         <item>China 920-925MHz</item>
         <item>ETSI 865-868MHz</item>
         <item>United States 902-928MHz</item>
-        <!-- Add more frequency modes as needed -->
+        <item>Brazil 902-907.5MHz and 915-928MHz</item>
+        <item>New Zealand 922-927MHz</item>
+        <item>Vietnam 918-923MHz</item>
     </string-array>
 
     <string-array name="power_levels">
