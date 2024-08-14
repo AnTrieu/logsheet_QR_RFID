@@ -183,6 +183,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Phương thức này có thể được sử dụng khi bạn cần lấy [ma] của [giatri] hiện tại
+    private String getCurrentSelectedMa() {
+        String currentGiatri = recordersACTV.getText().toString();
+        return recordersMap.get(currentGiatri);
+    }
+
     private void setupTimeACTV() {
         TimeHandler.setupTimeAutoCompleteTextView(this, timeACTV);
     }

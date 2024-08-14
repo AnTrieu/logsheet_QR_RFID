@@ -15,7 +15,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 public class Sync {
     private static final String SERVER_URL = "https://det.app/DETAPI/LOGSHEET/logsheetdata";
@@ -97,12 +99,26 @@ public class Sync {
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                 conn.setDoOutput(true);
 
+                // Get the 'ma' value corresponding to the 'giatri' in the RecorderTextView
+                String recorderValue = recorderTextView.getText().toString();
+                String recorderMa = "";
+                HashMap<String, String> recordersMap = RecorderFetcher.getRecordersFromLocal(context);
+                for (Map.Entry<String, String> entry : recordersMap.entrySet()) {
+                    if (entry.getValue().equals(recorderValue)) {
+                        recorderMa = entry.getKey();
+                        break;
+                    }
+                }
+
+                // Get the time value directly from the ACTV_time
+                String timeValue = timeTextView.getText().toString();
+
                 String postData = "action=savedata_syncline" +
                         "&tokenapi=" + TOKEN +
                         "&idinfo=" + idinfo +
                         "&ngayghi=" + dateTextView.getText().toString() +
-                        "&thoigianghi=" + timeTextView.getText().toString() +
-                        "&nguoighi=" + recorderTextView.getText().toString() +
+                        "&thoigianghi=" + timeValue +
+                        "&nguoighi=" + recorderMa +
                         "&giatri=" + value +
                         "&ghichu=" + note;
 

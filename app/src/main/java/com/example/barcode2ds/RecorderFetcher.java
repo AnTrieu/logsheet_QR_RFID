@@ -104,7 +104,7 @@ public class RecorderFetcher {
         editor.apply();
     }
 
-    private static HashMap<String, String> getRecordersFromLocal(Context context) {
+    public static HashMap<String, String> getRecordersFromLocal(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         Map<String, ?> allEntries = sharedPreferences.getAll();
         HashMap<String, String> recordersMap = new HashMap<>();
