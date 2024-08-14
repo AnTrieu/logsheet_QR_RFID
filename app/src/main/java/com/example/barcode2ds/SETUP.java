@@ -5,7 +5,6 @@ import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,6 +19,7 @@ public class SETUP {
     private RFIDWithUHFUART mReader;
     private TextView tvCurrentFrequency;
     private TextView tvCurrentPower;
+    private TextView tvCurrentRFID;
     private Spinner spFrequency;
 
     public SETUP(Context context, RFIDWithUHFUART reader) {
@@ -43,6 +43,7 @@ public class SETUP {
         Button btnWriteRFID = dialogView.findViewById(R.id.btnWriteRFID);
         tvCurrentFrequency = dialogView.findViewById(R.id.tvCurrentFrequency);
         tvCurrentPower = dialogView.findViewById(R.id.tvCurrentPower);
+        tvCurrentRFID = dialogView.findViewById(R.id.tvCurrentRFID);
 
         // Setup frequency spinner
         ArrayAdapter<CharSequence> frequencyAdapter = ArrayAdapter.createFromResource(context,
@@ -106,6 +107,15 @@ public class SETUP {
         // Get current power
         int power = mReader.getPower();
         tvCurrentPower.setText("Current Power: " + power);
+
+        // Update RFID
+        updateCurrentRFID("Unknown");
+    }
+
+    public void updateCurrentRFID(String rfidValue) {
+        if (tvCurrentRFID != null) {
+            tvCurrentRFID.setText("Current RFID: " + rfidValue);
+        }
     }
 
     private void setFrequency(int mode) {
@@ -140,6 +150,7 @@ public class SETUP {
         // Assuming we're writing to EPC memory bank
         if (mReader.writeData("00000000", RFIDWithUHFUART.Bank_EPC, 2, data.length() / 4, data)) {
             Toast.makeText(context, R.string.uhf_msg_write_succ, Toast.LENGTH_SHORT).show();
+            updateCurrentRFID(data); // Update the RFID value after successful write
         } else {
             Toast.makeText(context, R.string.uhf_msg_write_fail, Toast.LENGTH_SHORT).show();
         }

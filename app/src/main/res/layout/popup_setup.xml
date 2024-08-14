@@ -58,6 +58,13 @@
         android:layout_marginBottom="16dp"/>
 
     <TextView
+        android:id="@+id/tvCurrentRFID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Current RFID: Unknown"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Write RFID Data:"
