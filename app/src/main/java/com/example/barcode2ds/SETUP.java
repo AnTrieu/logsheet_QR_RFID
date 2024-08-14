@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -23,72 +25,84 @@ public class SETUP {
     public void showSetupPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = LayoutInflater.from(context);
-        View dialogView = inflater.inflate(R.layout.dialog_setup, null);
+        View dialogView = inflater.inflate(R.layout.popup_setup, null);
         builder.setView(dialogView);
 
         final AlertDialog dialog = builder.create();
 
-        final Spinner spinnerFrequency = dialogView.findViewById(R.id.spinnerFrequency);
-        final EditText editTextPower = dialogView.findViewById(R.id.editTextPower);
-        Button btnApplySettings = dialogView.findViewById(R.id.btnApplySettings);
-        Button btnRewriteRFID = dialogView.findViewById(R.id.btnRewriteRFID);
+        final Spinner spFrequency = dialogView.findViewById(R.id.spFrequency);
+        final Spinner spPower = dialogView.findViewById(R.id.spPower);
+        final EditText etWriteData = dialogView.findViewById(R.id.etWriteData);
+        Button btnSetFrequency = dialogView.findViewById(R.id.btnSetFrequency);
+        Button btnSetPower = dialogView.findViewById(R.id.btnSetPower);
+        Button btnWriteRFID = dialogView.findViewById(R.id.btnWriteRFID);
 
-        btnApplySettings.setOnClickListener(new View.OnClickListener() {
+        // Setup frequency spinner
+        ArrayAdapter<CharSequence> frequencyAdapter = ArrayAdapter.createFromResource(context,
+                R.array.frequency_modes, android.R.layout.simple_spinner_item);
+        frequencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spFrequency.setAdapter(frequencyAdapter);
+
+        // Setup power spinner
+        ArrayAdapter<CharSequence> powerAdapter = ArrayAdapter.createFromResource(context,
+                R.array.power_levels, android.R.layout.simple_spinner_item);
+        powerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spPower.setAdapter(powerAdapter);
+
+        btnSetFrequency.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String frequency = spinnerFrequency.getSelectedItem().toString();
-                int power = Integer.parseInt(editTextPower.getText().toString());
-                applyRFIDSettings(frequency, power);
+                int selectedFrequency = spFrequency.getSelectedItemPosition();
+                setFrequency(selectedFrequency);
             }
         });
 
-        btnRewriteRFID.setOnClickListener(new View.OnClickListener() {
+        btnSetPower.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showRewriteRFIDPopup();
+                int selectedPower = spPower.getSelectedItemPosition() + 1;
+                setPower(selectedPower);
+            }
+        });
+
+        btnWriteRFID.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String data = etWriteData.getText().toString();
+                writeRFID(data);
             }
         });
 
         dialog.show();
     }
 
-    private void applyRFIDSettings(String frequency, int power) {
-        // Implement the logic to apply RFID settings
-        // This is a placeholder implementation
-        boolean success = mReader.setPower(power);
-        if (success) {
-            Toast.makeText(context, "RFID settings applied successfully", Toast.LENGTH_SHORT).show();
+    private void setFrequency(int mode) {
+        if (mReader.setFrequencyMode((byte) mode)) {
+            Toast.makeText(context, R.string.uhf_msg_set_frequency_succ, Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(context, "Failed to apply RFID settings", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.uhf_msg_set_frequency_fail, Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void showRewriteRFIDPopup() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View dialogView = inflater.inflate(R.layout.dialog_rewrite_rfid, null);
-        builder.setView(dialogView);
-
-        final AlertDialog dialog = builder.create();
-
-        final EditText editTextNewData = dialogView.findViewById(R.id.editTextNewData);
-        Button btnRewrite = dialogView.findViewById(R.id.btnRewrite);
-
-        btnRewrite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String newData = editTextNewData.getText().toString();
-                rewriteRFIDChip(newData);
-                dialog.dismiss();
-            }
-        });
-
-        dialog.show();
+    private void setPower(int power) {
+        if (mReader.setPower(power)) {
+            Toast.makeText(context, R.string.uhf_msg_set_power_succ, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, R.string.uhf_msg_set_power_fail, Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private void rewriteRFIDChip(String newData) {
-        // Implement the logic to rewrite RFID chip
-        // This is a placeholder implementation
-        Toast.makeText(context, "RFID chip rewritten with: " + newData, Toast.LENGTH_SHORT).show();
+    private void writeRFID(String data) {
+        if (data.isEmpty()) {
+            Toast.makeText(context, R.string.uhf_msg_write_data_empty, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Assuming we're writing to EPC memory bank
+        if (mReader.writeData("00000000", RFIDWithUHFUART.Bank_EPC, 2, data.length() / 4, data)) {
+            Toast.makeText(context, R.string.uhf_msg_write_succ, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, R.string.uhf_msg_write_fail, Toast.LENGTH_SHORT).show();
+        }
     }
 }

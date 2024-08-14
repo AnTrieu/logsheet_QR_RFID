@@ -26,11 +26,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.rscja.barcode.BarcodeDecoder;
 import com.rscja.barcode.BarcodeFactory;
-import com.rscja.deviceapi.RFIDWithUHFUART;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import androidx.appcompat.app.AppCompatActivity;
+import com.rscja.deviceapi.RFIDWithUHFUART;
 
 public class MainActivity extends AppCompatActivity {
     AutoCompleteTextView recordersACTV, timeACTV;
@@ -47,10 +51,9 @@ public class MainActivity extends AppCompatActivity {
     private Tagpoint tagpoint;
     private Clear clear;
     private Sync sync;
-    private SETUP setup;
-    private RFIDWithUHFUART mReader;
     private ArrayAdapter<String> recordersAdapter;
     private HashMap<String, String> recordersMap;
+    private RFIDWithUHFUART mReader;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -76,11 +79,8 @@ public class MainActivity extends AppCompatActivity {
         try {
             mReader = RFIDWithUHFUART.getInstance();
         } catch (Exception e) {
-            Toast.makeText(this, "RFID module initialization failed", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
-
-        setup = new SETUP(this, mReader);
 
         new InitTask().execute();
     }
@@ -201,18 +201,19 @@ public class MainActivity extends AppCompatActivity {
         AnimationHandler.setButtonAnimation(button5);
         AnimationHandler.setButtonAnimation(button8);
 
-        Button button3 = findViewById(R.id.button3);
-        button3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setup.showSetupPopup();
-            }
-        });
-
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 clear.clearTagpointData();
+            }
+        });
+
+        Button button3 = findViewById(R.id.button3);
+        button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SETUP setup = new SETUP(MainActivity.this, mReader);
+                setup.showSetupPopup();
             }
         });
 

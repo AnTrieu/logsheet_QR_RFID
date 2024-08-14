@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Frequency"
+        android:textStyle="bold" />
+
+    <Spinner
+        android:id="@+id/spFrequency"
+        android:layout_width="match_parent"
+        android:layout_height="48sp"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnSetFrequency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set Frequency" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Power"
+        android:textStyle="bold" />
+
+    <Spinner
+        android:id="@+id/spPower"
+        android:layout_width="match_parent"
+        android:layout_height="48sp"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnSetPower"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set Power" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Write RFID"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/etWriteData"
+        android:layout_width="match_parent"
+        android:layout_height="48sp"
+        android:hint="Enter data to write"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnWriteRFID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Write RFID" />
+
+</LinearLayout>
