@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rscja.deviceapi.RFIDWithUHFUART;
@@ -16,6 +17,8 @@ import com.rscja.deviceapi.RFIDWithUHFUART;
 public class SETUP {
     private Context context;
     private RFIDWithUHFUART mReader;
+    private TextView tvCurrentFrequency;
+    private TextView tvCurrentPower;
 
     public SETUP(Context context, RFIDWithUHFUART reader) {
         this.context = context;
@@ -36,6 +39,8 @@ public class SETUP {
         Button btnSetFrequency = dialogView.findViewById(R.id.btnSetFrequency);
         Button btnSetPower = dialogView.findViewById(R.id.btnSetPower);
         Button btnWriteRFID = dialogView.findViewById(R.id.btnWriteRFID);
+        tvCurrentFrequency = dialogView.findViewById(R.id.tvCurrentFrequency);
+        tvCurrentPower = dialogView.findViewById(R.id.tvCurrentPower);
 
         // Setup frequency spinner
         ArrayAdapter<CharSequence> frequencyAdapter = ArrayAdapter.createFromResource(context,
@@ -49,11 +54,15 @@ public class SETUP {
         powerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spPower.setAdapter(powerAdapter);
 
+        // Display current values
+        updateCurrentValues();
+
         btnSetFrequency.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int selectedFrequency = spFrequency.getSelectedItemPosition();
                 setFrequency(selectedFrequency);
+                updateCurrentValues();
             }
         });
 
@@ -62,6 +71,7 @@ public class SETUP {
             public void onClick(View v) {
                 int selectedPower = spPower.getSelectedItemPosition() + 1;
                 setPower(selectedPower);
+                updateCurrentValues();
             }
         });
 
@@ -74,6 +84,21 @@ public class SETUP {
         });
 
         dialog.show();
+    }
+
+    private void updateCurrentValues() {
+        // Get current frequency
+        byte frequencyMode = (byte) mReader.getFrequencyMode();
+        String[] frequencyModes = context.getResources().getStringArray(R.array.frequency_modes);
+        if (frequencyMode >= 0 && frequencyMode < frequencyModes.length) {
+            tvCurrentFrequency.setText("Current Frequency: " + frequencyModes[frequencyMode]);
+        } else {
+            tvCurrentFrequency.setText("Current Frequency: Unknown");
+        }
+
+        // Get current power
+        int power = mReader.getPower();
+        tvCurrentPower.setText("Current Power: " + power);
     }
 
     private void setFrequency(int mode) {

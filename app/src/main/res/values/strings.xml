@@ -18,13 +18,36 @@
     </string-array>
 
     <string-array name="power_levels">
+        <item>1 dBm</item>
+        <item>2 dBm</item>
+        <item>3 dBm</item>
+        <item>4 dBm</item>
         <item>5 dBm</item>
+        <item>6 dBm</item>
+        <item>7 dBm</item>
+        <item>8 dBm</item>
+        <item>9 dBm</item>
         <item>10 dBm</item>
+        <item>11 dBm</item>
+        <item>12 dBm</item>
+        <item>13 dBm</item>
+        <item>14 dBm</item>
         <item>15 dBm</item>
+        <item>16 dBm</item>
+        <item>17 dBm</item>
+        <item>18 dBm</item>
+        <item>19 dBm</item>
         <item>20 dBm</item>
+        <item>21 dBm</item>
+        <item>22 dBm</item>
+        <item>23 dBm</item>
+        <item>24 dBm</item>
         <item>25 dBm</item>
+        <item>26 dBm</item>
+        <item>27 dBm</item>
+        <item>28 dBm</item>
+        <item>29 dBm</item>
         <item>30 dBm</item>
-        <!-- Add more power levels as needed -->
     </string-array>
 
     <string name="action_settings">Settings</string>
