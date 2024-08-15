@@ -21,6 +21,7 @@ public class SETUP {
     private TextView tvCurrentPower;
     private TextView tvCurrentRFID;
     private Spinner spFrequency;
+    private static String currentRFID = "Unknown";
 
     public SETUP(Context context, RFIDWithUHFUART reader) {
         this.context = context;
@@ -109,13 +110,14 @@ public class SETUP {
         tvCurrentPower.setText("Current Power: " + power);
 
         // Update RFID
-        updateCurrentRFID("Unknown");
+        updateCurrentRFID(currentRFID);
     }
 
     public void updateCurrentRFID(String rfidValue) {
         if (tvCurrentRFID != null) {
             tvCurrentRFID.setText("Current RFID: " + rfidValue);
         }
+        currentRFID = rfidValue;
     }
 
     private void setFrequency(int mode) {
@@ -154,5 +156,9 @@ public class SETUP {
         } else {
             Toast.makeText(context, R.string.uhf_msg_write_fail, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public static void setCurrentRFID(String rfid) {
+        currentRFID = rfid;
     }
 }

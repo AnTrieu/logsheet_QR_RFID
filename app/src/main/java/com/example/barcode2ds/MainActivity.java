@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<String> recordersAdapter;
     private HashMap<String, String> recordersMap;
     private RFIDWithUHFUART mReader;
+    private SETUP setup;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             mReader = RFIDWithUHFUART.getInstance();
+            setup = new SETUP(this, mReader);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -141,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String selectedGiatri = (String) parent.getItemAtPosition(position);
                 String selectedMa = recordersMap.get(selectedGiatri);
-                // Ở đây bạn có thể sử dụng selectedMa cho việc upload hoặc các mục đích khác
                 Log.d("Selected Recorder", "Giatri: " + selectedGiatri + ", Ma: " + selectedMa);
             }
         });
@@ -183,7 +184,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Phương thức này có thể được sử dụng khi bạn cần lấy [ma] của [giatri] hiện tại
     private String getCurrentSelectedMa() {
         String currentGiatri = recordersACTV.getText().toString();
         return recordersMap.get(currentGiatri);
@@ -208,11 +208,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button button3 = findViewById(R.id.button3);
         button3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SETUP setup = new SETUP(MainActivity.this, mReader);
                 setup.showSetupPopup();
             }
         });
@@ -265,6 +263,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRFIDScanned(String rfidCode) {
                 tagpoint.processRFIDCode(rfidCode);
+                setup.updateCurrentRFID(rfidCode);
             }
         });
     }

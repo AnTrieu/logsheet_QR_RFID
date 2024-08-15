@@ -115,6 +115,7 @@ public class RFID {
                     if (listener != null) {
                         listener.onRFIDScanned(scannedRFID);
                     }
+                    SETUP.setCurrentRFID(scannedRFID); // Cập nhật giá trị RFID trong SETUP
                 } else {
                     Toast.makeText(context, "RFID code too short", Toast.LENGTH_SHORT).show();
                 }
@@ -122,5 +123,9 @@ public class RFID {
                 Toast.makeText(context, "No tag found", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public RFIDWithUHFUART getReader() {
+        return mReader;
     }
 }
