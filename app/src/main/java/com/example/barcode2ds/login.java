@@ -1,4 +1,3 @@
-//Đăng nhập
 package com.example.barcode2ds;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +20,9 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 public class login extends AppCompatActivity {
 
     private EditText usernameEditText, passwordEditText;
@@ -29,6 +31,14 @@ public class login extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (isLoggedIn()) {
+            Intent mainIntent = new Intent(login.this, MainActivity.class);
+            startActivity(mainIntent);
+            finish();
+            return;
+        }
+
         setContentView(R.layout.login_layout);
 
         usernameEditText = findViewById(R.id.editTextText4);
@@ -63,14 +73,12 @@ public class login extends AppCompatActivity {
                     String error = jsonObject.getString("error");
                     if ("ok".equals(status)) {
                         Toast.makeText(login.this, "Login successful!", Toast.LENGTH_SHORT).show();
+                        // Lưu trạng thái đăng nhập
+                        saveLoginState(true);
                         // Chuyển sang MainActivity
                         Intent mainIntent = new Intent(login.this, MainActivity.class);
                         startActivity(mainIntent);
-//
-//                        // Khởi động QRcode
-//                        Intent qrCodeIntent = new Intent(login.this, QRcode.class);
-//                        startActivity(qrCodeIntent);
-                        finish(); // Kết thúc activity hiện tại
+                        finish();
                     } else {
                         Toast.makeText(login.this, "Login failed: " + error, Toast.LENGTH_SHORT).show();
                     }
@@ -97,5 +105,17 @@ public class login extends AppCompatActivity {
         };
 
         requestQueue.add(stringRequest);
+    }
+
+    private boolean isLoggedIn() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        return sharedPreferences.getBoolean("isLoggedIn", false);
+    }
+
+    private void saveLoginState(boolean isLoggedIn) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("isLoggedIn", isLoggedIn);
+        editor.apply();
     }
 }
