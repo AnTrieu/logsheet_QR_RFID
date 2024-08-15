@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:padding="16dp">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
     <TextView
         android:id="@+id/tvCurrentFrequency"
@@ -57,30 +65,32 @@
         android:text="Set Power"
         android:layout_marginBottom="16dp"/>
 
-    <TextView
-        android:id="@+id/tvCurrentRFID"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Current RFID: Unknown"
-        android:layout_marginBottom="8dp"/>
+            <TextView
+                android:id="@+id/tvCurrentRFID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current RFID: Unknown"
+                android:layout_marginBottom="8dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Write RFID Data:"
-        android:layout_marginBottom="4dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Write RFID Data:"
+                android:layout_marginBottom="4dp"/>
 
-    <EditText
-        android:id="@+id/etWriteData"
-        android:layout_width="match_parent"
-        android:layout_height="48sp"
-        android:hint="Enter data to write"
-        android:layout_marginBottom="8dp"/>
+            <EditText
+                android:id="@+id/etWriteData"
+                android:layout_width="match_parent"
+                android:layout_height="48sp"
+                android:hint="Enter data to write"
+                android:layout_marginBottom="8dp"/>
 
-    <Button
-        android:id="@+id/btnWriteRFID"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Write RFID"/>
+            <Button
+                android:id="@+id/btnWriteRFID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Write RFID"/>
 
-</LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>
