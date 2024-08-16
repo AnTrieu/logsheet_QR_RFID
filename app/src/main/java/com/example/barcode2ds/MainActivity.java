@@ -10,6 +10,7 @@ import android.os.Process;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -153,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (!lastSelectedRecorder.isEmpty()) {
             String[] parts = lastSelectedRecorder.split(";");
-            if (parts.length == 2 && recordersMap.containsKey(parts[0])) {
+            if (parts.length == 2 && fetchedRecordersMap.containsValue(parts[1])) {
                 recordersTextView.setText(parts[0]);
             } else {
                 recordersTextView.setText("");
@@ -167,8 +168,8 @@ public class MainActivity extends AppCompatActivity {
         ListView listView = new ListView(this);
         listView.setAdapter(recordersAdapter);
 
-        popupWindow = new PopupWindow(listView, recordersTextView.getWidth(),
-                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, getResources().getDisplayMetrics());
+        popupWindow = new PopupWindow(listView, recordersTextView.getWidth(), height, true);
         popupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
         popupWindow.setOutsideTouchable(true);
 
@@ -183,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        popupWindow.showAsDropDown(recordersTextView);
+        popupWindow.showAsDropDown(recordersTextView, 0, -height - recordersTextView.getHeight());
     }
 
     private void setupTimeACTV() {
