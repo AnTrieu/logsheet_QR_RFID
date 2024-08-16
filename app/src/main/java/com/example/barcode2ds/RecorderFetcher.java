@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -14,6 +15,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class RecorderFetcher {
@@ -27,6 +29,7 @@ public class RecorderFetcher {
     private static final String URL_STRING = "https://det.app/DETAPI/LOGSHEET/logsheetdata";
     private static final String PREF_NAME = "RecorderData";
     private static final String LAST_SELECTED_KEY = "lastSelectedRecorder";
+    private static final String SERVER_DATA_KEY = "serverData";
 
     public static void fetchRecorders(final Context context, final RecorderFetchListener listener) {
         if (isNetworkAvailable(context)) {
@@ -97,21 +100,23 @@ public class RecorderFetcher {
     private static void saveRecordersToLocal(Context context, HashMap<String, String> recordersMap) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear(); // Clear existing data
-        for (Map.Entry<String, String> entry : recordersMap.entrySet()) {
-            editor.putString(entry.getKey(), entry.getValue());
-        }
+        JSONObject jsonObject = new JSONObject(recordersMap);
+        editor.putString(SERVER_DATA_KEY, jsonObject.toString());
         editor.apply();
     }
 
     public static HashMap<String, String> getRecordersFromLocal(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        Map<String, ?> allEntries = sharedPreferences.getAll();
+        String jsonString = sharedPreferences.getString(SERVER_DATA_KEY, "{}");
         HashMap<String, String> recordersMap = new HashMap<>();
-        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-            if (!entry.getKey().equals(LAST_SELECTED_KEY)) {
-                recordersMap.put(entry.getKey(), entry.getValue().toString());
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            for (Iterator<String> it = jsonObject.keys(); it.hasNext(); ) {
+                String key = it.next();
+                recordersMap.put(key, jsonObject.getString(key));
             }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
         return recordersMap;
     }

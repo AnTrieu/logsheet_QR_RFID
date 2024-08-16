@@ -122,14 +122,24 @@ public class MainActivity extends AppCompatActivity {
 
         RecorderFetcher.fetchRecorders(this, new RecorderFetcher.RecorderFetchListener() {
             @Override
-            public void onFetchComplete(HashMap<String, String> fetchedRecordersMap, String lastSelectedRecorder) {
-                updateRecordersList(fetchedRecordersMap, lastSelectedRecorder);
+            public void onFetchComplete(final HashMap<String, String> fetchedRecordersMap, final String lastSelectedRecorder) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateRecordersList(fetchedRecordersMap, lastSelectedRecorder);
+                    }
+                });
             }
 
             @Override
-            public void onFetchFailed(Exception e) {
-                e.printStackTrace();
-                Toast.makeText(MainActivity.this, "Failed to fetch recorders", Toast.LENGTH_SHORT).show();
+            public void onFetchFailed(final Exception e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this, "Failed to fetch recorders", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
 
@@ -154,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (!lastSelectedRecorder.isEmpty()) {
             String[] parts = lastSelectedRecorder.split(";");
-            if (parts.length == 2 && fetchedRecordersMap.containsValue(parts[1])) {
+            if (parts.length == 2 && fetchedRecordersMap.containsKey(parts[1])) {
                 recordersTextView.setText(parts[0]);
             } else {
                 recordersTextView.setText("");
@@ -163,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
             recordersTextView.setText("");
         }
     }
+
 
     private void showRecordersPopup() {
         ListView listView = new ListView(this);
