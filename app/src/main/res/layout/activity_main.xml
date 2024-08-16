@@ -150,26 +150,22 @@
         android:focusable="false"
         android:focusableInTouchMode="false"/>
 
-    <AutoCompleteTextView
-        android:id="@+id/ACTV_recorders"
+    <TextView
+        android:id="@+id/TV_recorders"
         android:layout_width="227dp"
         android:layout_height="48dp"
         android:layout_gravity="center"
         android:layout_marginStart="12dp"
         android:layout_marginTop="16dp"
         android:background="@drawable/nguoighi_time"
-        android:dropDownHeight="300dp"
-        android:hint="Người ghi"
+        android:text="Người ghi"
+        android:textSize="18sp"
+        android:textColor="#000000"
         android:gravity="center"
+        android:clickable="true"
+        android:focusable="true"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ScrollView"
-        android:inputType="none"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:singleLine="true"
-        android:ellipsize="end"
-        android:scrollHorizontally="true"/>
-
+        app:layout_constraintTop_toBottomOf="@+id/ScrollView"/>
 
     <TextView
         android:id="@+id/textview_date"
@@ -180,13 +176,13 @@
         android:background="@drawable/date"
         android:clickable="true"
         android:focusable="true"
+        android:gravity="center"
         android:padding="10dp"
         android:text="Select Date"
-        android:gravity="center"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ACTV_recorders"
+        app:layout_constraintTop_toBottomOf="@+id/TV_recorders"
         app:layout_constraintVertical_bias="0.245" />
 
     <Button

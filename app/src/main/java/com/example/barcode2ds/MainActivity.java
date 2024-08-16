@@ -1,6 +1,8 @@
 package com.example.barcode2ds;
 
 import android.app.ProgressDialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,6 +12,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -18,6 +21,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,15 +35,11 @@ import com.rscja.barcode.BarcodeFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import androidx.appcompat.app.AppCompatActivity;
 import com.rscja.deviceapi.RFIDWithUHFUART;
 
 public class MainActivity extends AppCompatActivity {
-    AutoCompleteTextView recordersACTV, timeACTV;
-    TextView dateTextView, resultTextView;
+    TextView recordersTextView, dateTextView, resultTextView;
+    AutoCompleteTextView timeACTV;
     Button button2, button3, button4, button5, button8;
     LinearLayout scrollLinearLayout;
     DateHandler dateHandler;
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private HashMap<String, String> recordersMap;
     private RFIDWithUHFUART mReader;
     private SETUP setup;
+    private PopupWindow popupWindow;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
         initializeViews();
         setupDateHandler();
-        setupRecordersACTV();
+        setupRecordersTextView();
         setupTimeACTV();
         setupButtons();
         setupTagpoint();
@@ -92,12 +94,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupSync() {
-        sync = new Sync(this, dateTextView, timeACTV, recordersACTV, clear);
+        sync = new Sync(this, dateTextView, timeACTV, recordersTextView, clear);
     }
 
     private void initializeViews() {
         dateTextView = findViewById(R.id.textview_date);
-        recordersACTV = findViewById(R.id.ACTV_recorders);
+        recordersTextView = findViewById(R.id.TV_recorders);
         timeACTV = findViewById(R.id.ACTV_time);
         button2 = findViewById(R.id.button2);
         button3 = findViewById(R.id.button3);
@@ -113,9 +115,8 @@ public class MainActivity extends AppCompatActivity {
         dateHandler = new DateHandler(this, dateTextView);
     }
 
-    private void setupRecordersACTV() {
-        recordersAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line);
-        recordersACTV.setAdapter(recordersAdapter);
+    private void setupRecordersTextView() {
+        recordersAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         recordersMap = new HashMap<>();
 
         RecorderFetcher.fetchRecorders(this, new RecorderFetcher.RecorderFetchListener() {
@@ -131,19 +132,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        recordersACTV.setOnClickListener(new View.OnClickListener() {
+        recordersTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                recordersACTV.showDropDown();
-            }
-        });
-
-        recordersACTV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String selectedGiatri = (String) parent.getItemAtPosition(position);
-                String selectedMa = recordersMap.get(selectedGiatri);
-                Log.d("Selected Recorder", "Giatri: " + selectedGiatri + ", Ma: " + selectedMa);
+                showRecordersPopup();
             }
         });
     }
@@ -158,35 +150,40 @@ public class MainActivity extends AppCompatActivity {
             recordersAdapter.add(giatri);
             recordersMap.put(giatri, ma);
         }
-        recordersAdapter.notifyDataSetChanged();
 
         if (!lastSelectedRecorder.isEmpty()) {
             String[] parts = lastSelectedRecorder.split(";");
             if (parts.length == 2 && recordersMap.containsKey(parts[0])) {
-                recordersACTV.setText(parts[0]);
+                recordersTextView.setText(parts[0]);
             } else {
-                recordersACTV.setText("");
+                recordersTextView.setText("");
             }
         } else {
-            recordersACTV.setText("");
+            recordersTextView.setText("");
         }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        String selectedGiatri = recordersACTV.getText().toString();
-        if (!selectedGiatri.isEmpty()) {
-            String selectedMa = recordersMap.get(selectedGiatri);
-            if (selectedMa != null) {
-                RecorderFetcher.saveLastSelectedRecorder(this, selectedGiatri + ";" + selectedMa);
+    private void showRecordersPopup() {
+        ListView listView = new ListView(this);
+        listView.setAdapter(recordersAdapter);
+
+        popupWindow = new PopupWindow(listView, recordersTextView.getWidth(),
+                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
+        popupWindow.setOutsideTouchable(true);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selectedGiatri = recordersAdapter.getItem(position);
+                recordersTextView.setText(selectedGiatri);
+                String selectedMa = recordersMap.get(selectedGiatri);
+                RecorderFetcher.saveLastSelectedRecorder(MainActivity.this, selectedGiatri + ";" + selectedMa);
+                popupWindow.dismiss();
             }
-        }
-    }
+        });
 
-    private String getCurrentSelectedMa() {
-        String currentGiatri = recordersACTV.getText().toString();
-        return recordersMap.get(currentGiatri);
+        popupWindow.showAsDropDown(recordersTextView);
     }
 
     private void setupTimeACTV() {
@@ -266,6 +263,18 @@ public class MainActivity extends AppCompatActivity {
                 setup.updateCurrentRFID(rfidCode);
             }
         });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        String selectedGiatri = recordersTextView.getText().toString();
+        if (!selectedGiatri.isEmpty()) {
+            String selectedMa = recordersMap.get(selectedGiatri);
+            if (selectedMa != null) {
+                RecorderFetcher.saveLastSelectedRecorder(this, selectedGiatri + ";" + selectedMa);
+            }
+        }
     }
 
     @Override
