@@ -2,6 +2,8 @@ package com.example.barcode2ds;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.widget.TextView;
@@ -46,7 +48,22 @@ public class Sync {
             Toast.makeText(context, "Thiếu dữ liệu", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        if (!isNetworkAvailable()) {
+            Toast.makeText(context, "Upload dữ liệu không khả dụng (Không có kết nối internet)", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         new SyncTask().execute();
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager != null) {
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        }
+        return false;
     }
 
     private class SyncTask extends AsyncTask<Void, String, Boolean> {
