@@ -41,7 +41,6 @@ public class SETUP {
         frequencyModeMap.put("South Africa 915-919MHz", (byte) 0x33);
         frequencyModeMap.put("New Zealand 922-927MHz", (byte) 0x34);
         frequencyModeMap.put("Morocco", (byte) 0x80);
-        frequencyModeMap.put("Test Low Frequency 100-200MHz", (byte) 0xFF); // Test frequency (Xóa nều không cần)
 
         for (Map.Entry<String, Byte> entry : frequencyModeMap.entrySet()) {
             reverseFrequencyModeMap.put(entry.getValue(), entry.getKey());
