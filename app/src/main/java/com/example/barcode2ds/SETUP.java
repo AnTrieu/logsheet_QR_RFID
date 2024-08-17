@@ -14,7 +14,12 @@ import android.widget.Toast;
 
 import com.rscja.deviceapi.RFIDWithUHFUART;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class SETUP {
+    private static final String TAG = "SETUP";
     private Context context;
     private RFIDWithUHFUART mReader;
     private TextView tvCurrentFrequency;
@@ -22,6 +27,26 @@ public class SETUP {
     private TextView tvCurrentRFID;
     private Spinner spFrequency;
     private static String currentRFID = "Unknown";
+
+    private static final Map<String, Byte> frequencyModeMap = new HashMap<>();
+    private static final Map<Byte, String> reverseFrequencyModeMap = new HashMap<>();
+
+    static {
+        frequencyModeMap.put("China 840-845MHz", (byte) 0x01);
+        frequencyModeMap.put("China 920-925MHz", (byte) 0x02);
+        frequencyModeMap.put("ETSI 865-868MHz", (byte) 0x04);
+        frequencyModeMap.put("United States 902-928MHz", (byte) 0x08);
+        frequencyModeMap.put("Korea", (byte) 0x16);
+        frequencyModeMap.put("Japan", (byte) 0x32);
+        frequencyModeMap.put("South Africa 915-919MHz", (byte) 0x33);
+        frequencyModeMap.put("New Zealand 922-927MHz", (byte) 0x34);
+        frequencyModeMap.put("Morocco", (byte) 0x80);
+        frequencyModeMap.put("Test Low Frequency 100-200MHz", (byte) 0xFF); // Test frequency (Xóa nều không cần)
+
+        for (Map.Entry<String, Byte> entry : frequencyModeMap.entrySet()) {
+            reverseFrequencyModeMap.put(entry.getValue(), entry.getKey());
+        }
+    }
 
     public SETUP(Context context, RFIDWithUHFUART reader) {
         this.context = context;
@@ -47,8 +72,9 @@ public class SETUP {
         tvCurrentRFID = dialogView.findViewById(R.id.tvCurrentRFID);
 
         // Setup frequency spinner
-        ArrayAdapter<CharSequence> frequencyAdapter = ArrayAdapter.createFromResource(context,
-                R.array.frequency_modes, android.R.layout.simple_spinner_item);
+        ArrayAdapter<String> frequencyAdapter = new ArrayAdapter<>(context,
+                android.R.layout.simple_spinner_item,
+                new ArrayList<>(frequencyModeMap.keySet()));
         frequencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spFrequency.setAdapter(frequencyAdapter);
 
@@ -64,7 +90,7 @@ public class SETUP {
         btnSetFrequency.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int selectedFrequency = spFrequency.getSelectedItemPosition();
+                String selectedFrequency = (String) spFrequency.getSelectedItem();
                 setFrequency(selectedFrequency);
                 updateCurrentValues();
             }
@@ -93,17 +119,21 @@ public class SETUP {
     private void updateCurrentValues() {
         // Get current frequency
         byte frequencyMode = (byte) mReader.getFrequencyMode();
-        String[] frequencyModes = context.getResources().getStringArray(R.array.frequency_modes);
-        if (frequencyMode >= 0 && frequencyMode < frequencyModes.length) {
-            tvCurrentFrequency.setText("Current Frequency: " + frequencyModes[frequencyMode]);
+        String frequencyString = reverseFrequencyModeMap.get(frequencyMode);
+        if (frequencyString != null) {
+            tvCurrentFrequency.setText("Current Frequency: " + frequencyString);
             // Set the spinner to the current frequency
-            spFrequency.setSelection(frequencyMode);
+            ArrayAdapter adapter = (ArrayAdapter) spFrequency.getAdapter();
+            int position = adapter.getPosition(frequencyString);
+            if (position != -1) {
+                spFrequency.setSelection(position);
+            }
         } else {
             tvCurrentFrequency.setText("Current Frequency: Unknown (Mode: " + frequencyMode + ")");
         }
 
         // Log the current frequency mode
-        Log.d("SETUP", "Current frequency mode: " + frequencyMode);
+        Log.d(TAG, "Current frequency mode: " + frequencyMode);
 
         // Get current power
         int power = mReader.getPower();
@@ -120,19 +150,25 @@ public class SETUP {
         currentRFID = rfidValue;
     }
 
-    private void setFrequency(int mode) {
-        Log.d("SETUP", "Setting frequency mode to: " + mode);
-        if (mReader.setFrequencyMode((byte) mode)) {
+    private void setFrequency(String selectedFrequency) {
+        Byte mode = frequencyModeMap.get(selectedFrequency);
+
+        if (mode == null) {
+            Toast.makeText(context, "Invalid frequency mode", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Log.d(TAG, "Setting frequency mode to: " + mode);
+        if (mReader.setFrequencyMode(mode)) {
             Toast.makeText(context, R.string.uhf_msg_set_frequency_succ, Toast.LENGTH_SHORT).show();
-            Log.d("SETUP", "Set frequency successful");
+            Log.d(TAG, "Set frequency successful");
         } else {
             Toast.makeText(context, R.string.uhf_msg_set_frequency_fail, Toast.LENGTH_SHORT).show();
-            Log.e("SETUP", "Set frequency failed");
+            Log.e(TAG, "Set frequency failed");
         }
 
         // Verify the set frequency
-        byte newFrequencyMode = (byte) mReader.getFrequencyMode();
-        Log.d("SETUP", "New frequency mode after setting: " + newFrequencyMode);
+        updateCurrentValues();
     }
 
     private void setPower(int power) {

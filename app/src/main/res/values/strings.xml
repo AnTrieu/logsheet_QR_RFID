@@ -8,16 +8,7 @@
     <string name="uhf_msg_write_data_empty">Write data cannot be empty</string>
     <string name="uhf_msg_write_succ">RFID write successful</string>
     <string name="uhf_msg_write_fail">RFID write failed</string>
-
-    <string-array name="frequency_modes">
-        <item>China 840-845MHz</item>
-        <item>China 920-925MHz</item>
-        <item>ETSI 865-868MHz</item>
-        <item>United States 902-928MHz</item>
-        <item>Brazil 902-907.5MHz and 915-928MHz</item>
-        <item>New Zealand 922-927MHz</item>
-        <item>Vietnam 918-923MHz</item>
-    </string-array>
+    <string name="uhf_msg_invalid_frequency">Tần số không hợp lệ</string><!--    Test frequency (Xóa nều không cần)-->
 
     <string-array name="power_levels">
         <item>1 dBm</item>
