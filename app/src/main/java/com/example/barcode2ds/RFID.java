@@ -101,7 +101,15 @@ public class RFID {
 
         @Override
         protected UHFTAGInfo doInBackground(Void... voids) {
-            return mReader.inventorySingleTag();
+            UHFTAGInfo result = null;
+            long startTime = System.currentTimeMillis();
+            while (System.currentTimeMillis() - startTime < 3000) {
+                result = mReader.inventorySingleTag();
+                if (result != null) {
+                    break;
+                }
+            }
+            return result;
         }
 
         @Override
@@ -123,9 +131,5 @@ public class RFID {
                 Toast.makeText(context, "No tag found", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    public RFIDWithUHFUART getReader() {
-        return mReader;
     }
 }
