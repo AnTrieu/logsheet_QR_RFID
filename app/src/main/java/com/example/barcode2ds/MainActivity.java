@@ -34,6 +34,7 @@ import com.rscja.barcode.BarcodeDecoder;
 import com.rscja.barcode.BarcodeFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.rscja.deviceapi.RFIDWithUHFUART;
@@ -270,9 +271,14 @@ public class MainActivity extends AppCompatActivity {
         rfid = new RFID(this, button8);
         rfid.setOnRFIDScannedListener(new RFID.OnRFIDScannedListener() {
             @Override
-            public void onRFIDScanned(String rfidCode) {
-                tagpoint.processRFIDCode(rfidCode);
-                setup.updateCurrentRFID(rfidCode);
+            public void onRFIDsScanned(List<String> rfidCodes) {
+                for (String rfidCode : rfidCodes) {
+                    tagpoint.processRFIDCode(rfidCode);
+                }
+                if (!rfidCodes.isEmpty()) {
+                    String lastRFIDCode = rfidCodes.get(rfidCodes.size() - 1);
+                    setup.updateCurrentRFID(lastRFIDCode);
+                }
             }
         });
     }

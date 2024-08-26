@@ -3,13 +3,17 @@ package com.example.barcode2ds;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.deviceapi.entity.UHFTAGInfo;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class RFID {
     private static final String TAG = "RFID";
@@ -19,7 +23,7 @@ public class RFID {
     private OnRFIDScannedListener listener;
 
     public interface OnRFIDScannedListener {
-        void onRFIDScanned(String rfidCode);
+        void onRFIDsScanned(List<String> rfidCodes);
     }
 
     public void setOnRFIDScannedListener(OnRFIDScannedListener listener) {
@@ -87,7 +91,7 @@ public class RFID {
         }
     }
 
-    private class ScanTask extends AsyncTask<Void, Void, UHFTAGInfo> {
+    private class ScanTask extends AsyncTask<Void, Void, List<UHFTAGInfo>> {
         ProgressDialog progressDialog;
 
         @Override
@@ -100,36 +104,49 @@ public class RFID {
         }
 
         @Override
-        protected UHFTAGInfo doInBackground(Void... voids) {
-            UHFTAGInfo result = null;
+        protected List<UHFTAGInfo> doInBackground(Void... voids) {
+            List<UHFTAGInfo> results = new ArrayList<>();
             long startTime = System.currentTimeMillis();
             while (System.currentTimeMillis() - startTime < 3000) {
-                result = mReader.inventorySingleTag();
+                UHFTAGInfo result = mReader.inventorySingleTag();
                 if (result != null) {
-                    break;
+                    results.add(result);
                 }
             }
-            return result;
+            return results;
         }
 
         @Override
-        protected void onPostExecute(UHFTAGInfo result) {
-            super.onPostExecute(result);
+        protected void onPostExecute(List<UHFTAGInfo> results) {
+            super.onPostExecute(results);
             progressDialog.dismiss();
-            if (result != null) {
-                String scannedRFID = result.getEPC();
-                if (scannedRFID.length() >= 4) {
-                    scannedRFID = scannedRFID.substring(0, 4);
-                    if (listener != null) {
-                        listener.onRFIDScanned(scannedRFID);
-                    }
-                    SETUP.setCurrentRFID(scannedRFID); // Cập nhật giá trị RFID trong SETUP
-                } else {
-                    Toast.makeText(context, "RFID code too short", Toast.LENGTH_SHORT).show();
-                }
+            if (!results.isEmpty()) {
+                processScannedRFIDs(results);
             } else {
-                Toast.makeText(context, "No tag found", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "No tags found", Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    private void processScannedRFIDs(List<UHFTAGInfo> results) {
+        Set<String> uniqueRFIDs = new HashSet<>();
+        for (UHFTAGInfo result : results) {
+            String scannedRFID = result.getEPC();
+            if (scannedRFID.length() >= 4) {
+                scannedRFID = scannedRFID.substring(0, 4);
+                uniqueRFIDs.add(scannedRFID);
+            }
+        }
+
+        if (!uniqueRFIDs.isEmpty()) {
+            List<String> rfidList = new ArrayList<>(uniqueRFIDs);
+            if (listener != null) {
+                listener.onRFIDsScanned(rfidList);
+            }
+            // Cập nhật mã RFID cuối cùng là mã hiện tại
+            SETUP.setCurrentRFID(rfidList.get(rfidList.size() - 1));
+        } else {
+            Toast.makeText(context, "No valid RFID codes found", Toast.LENGTH_SHORT).show();
         }
     }
 }
