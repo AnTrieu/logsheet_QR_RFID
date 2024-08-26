@@ -249,16 +249,14 @@ public class Tagpoint {
     }
 
     public void processQRCode(final String qrCode) {
-        if (currentRFIDCodes.isEmpty()) {
-            return;
+        List<TagpointData> matchingTagpoints = new ArrayList<>();
+        for (TagpointData data : tagpointDataList) {
+            if (currentRFIDCodes.contains(data.getRfidcode())) {
+                matchingTagpoints.add(data);
+            }
         }
 
-        List<TagpointData> matchingRFIDTagpoints = new ArrayList<>();
-        for (String rfidCode : currentRFIDCodes) {
-            matchingRFIDTagpoints.addAll(findMatchingTagpointData(rfidCode));
-        }
-
-        Collections.sort(matchingRFIDTagpoints, new Comparator<TagpointData>() {
+        Collections.sort(matchingTagpoints, new Comparator<TagpointData>() {
             @Override
             public int compare(TagpointData a, TagpointData b) {
                 if (a.getQrcode().equals(qrCode) && !b.getQrcode().equals(qrCode)) {
@@ -270,7 +268,7 @@ public class Tagpoint {
             }
         });
 
-        displayTagpoints(matchingRFIDTagpoints);
+        displayTagpoints(matchingTagpoints);
     }
 
     private List<TagpointData> findMatchingTagpointData(String rfidCode) {
@@ -301,23 +299,17 @@ public class Tagpoint {
 
         editTextText.setText(data.getTagdes());
 
-        boolean isMatchingQRCode = data.getQrcode().equals(currentQRCode);
+        boolean isActive = data.getQrcode().equals(currentQRCode);
 
-        if (isMatchingQRCode) {
-            tagpointView.setBackgroundColor(Color.parseColor("#d5e8d4"));
-            tagpointView.setBackground(context.getResources().getDrawable(R.drawable.tagpoint_border_green));
+        updateTagpointAppearance(tagpointView, editTextValue, editTextNote, isActive);
 
-            // Cho phép chỉnh sửa
-            enableEditing(editTextValue);
-            enableEditing(editTextNote);
-        } else {
-            tagpointView.setBackgroundColor(Color.parseColor("#fff2cc"));
-            tagpointView.setBackground(context.getResources().getDrawable(R.drawable.tagpoint_border_orange));
-
-            // Vô hiệu hóa chỉnh sửa
-            disableEditing(editTextValue);
-            disableEditing(editTextNote);
-        }
+        // Thêm OnClickListener cho tagpointView
+        tagpointView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activateTagpoint(data);
+            }
+        });
 
         scrollLinearLayout.addView(tagpointView);
 
@@ -334,15 +326,40 @@ public class Tagpoint {
         if (savedValues != null) {
             editTextValue.setText(savedValues.optString("value", ""));
             editTextNote.setText(savedValues.optString("note", ""));
-            if (isMatchingQRCode) {
+            if (isActive) {
                 validateAndColorValue(editTextValue, data);
             }
         }
 
-        if (isMatchingQRCode) {
-            // Chỉ thêm TextWatcher nếu QR code phù hợp
+        // Thêm TextWatcher chỉ khi tagpoint được active
+        if (isActive) {
             addTextWatchers(editTextValue, editTextNote, data);
         }
+    }
+
+    private void updateTagpointAppearance(View tagpointView, EditText editTextValue, EditText editTextNote, boolean isActive) {
+        if (isActive) {
+            tagpointView.setBackgroundColor(Color.parseColor("#d5e8d4"));
+            tagpointView.setBackground(context.getResources().getDrawable(R.drawable.tagpoint_border_green));
+            enableEditing(editTextValue);
+            enableEditing(editTextNote);
+        } else {
+            tagpointView.setBackgroundColor(Color.parseColor("#fff2cc"));
+            tagpointView.setBackground(context.getResources().getDrawable(R.drawable.tagpoint_border_orange));
+            disableEditing(editTextValue);
+            disableEditing(editTextNote);
+        }
+    }
+
+    private void activateTagpoint(TagpointData data) {
+        // Cập nhật mã QR hiện tại
+        mainQRCodeEditText.setText(data.getQrcode());
+
+        // Cập nhật giao diện người dùng
+        processQRCode(data.getQrcode());
+
+        // Thông báo cho người dùng
+        Toast.makeText(context, "Đã kích hoạt tagpoint: " + data.getTagdes(), Toast.LENGTH_SHORT).show();
     }
 
     private void enableEditing(EditText editText) {
