@@ -186,6 +186,15 @@ public class Tagpoint {
         }
     }
 
+    public void clearResultSpinner() {
+        if (resultSpinner != null) {
+            ArrayAdapter<String> emptyAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, new ArrayList<String>());
+            emptyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            resultSpinner.setAdapter(emptyAdapter);
+        }
+        currentRFIDCodes.clear();
+    }
+
     private void updateResultSpinner(List<TagpointData> matchingData) {
         List<String> rfiddesList = new ArrayList<>();
         for (TagpointData data : matchingData) {
@@ -236,6 +245,7 @@ public class Tagpoint {
         }
         currentRFIDCodes.clear();
         mainQRCodeEditText.setText("");
+        clearResultSpinner();
     }
 
     public void processQRCode(final String qrCode) {

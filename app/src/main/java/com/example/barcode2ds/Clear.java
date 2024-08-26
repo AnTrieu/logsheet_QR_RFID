@@ -22,5 +22,6 @@ public class Clear {
         editor.apply();
         Toast.makeText(context, "All saved tagpoint data has been cleared", Toast.LENGTH_SHORT).show();
         tagpoint.reInitialize();
+        tagpoint.clearResultSpinner();
     }
 }
