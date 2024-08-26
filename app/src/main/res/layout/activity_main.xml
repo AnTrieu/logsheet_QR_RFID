@@ -58,7 +58,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <AutoCompleteTextView
+    <Spinner
         android:id="@+id/rfiddes"
         android:layout_width="337dp"
         android:layout_height="48dp"

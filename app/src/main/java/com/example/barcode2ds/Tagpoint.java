@@ -11,9 +11,12 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,13 +48,13 @@ public class Tagpoint {
     private SharedPreferences prefs;
     private EditText mainQRCodeEditText;
     private List<String> currentRFIDCodes = new ArrayList<>();
-    private AutoCompleteTextView resultTextView;
+    private Spinner resultSpinner;
 
-    public Tagpoint(Context context, LinearLayout scrollLinearLayout, EditText mainQRCodeEditText, AutoCompleteTextView resultTextView) {
+    public Tagpoint(Context context, LinearLayout scrollLinearLayout, EditText mainQRCodeEditText, Spinner resultSpinner) {
         this.context = context;
         this.scrollLinearLayout = scrollLinearLayout;
         this.mainQRCodeEditText = mainQRCodeEditText;
-        this.resultTextView = resultTextView;
+        this.resultSpinner = resultSpinner;
         this.tagpointDataList = new ArrayList<>();
         this.prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         loadCachedData();
@@ -179,20 +182,48 @@ public class Tagpoint {
                 matchingData.addAll(findMatchingTagpointData(rfidCode));
             }
             displayTagpoints(matchingData);
-            updateResultTextView(matchingData);
+            updateResultSpinner(matchingData);
         }
     }
 
-    private void updateResultTextView(List<TagpointData> matchingData) {
-        if (!matchingData.isEmpty()) {
-            StringBuilder result = new StringBuilder();
-            for (TagpointData data : matchingData) {
-                result.append(data.getRfiddes()).append("\n");
+    private void updateResultSpinner(List<TagpointData> matchingData) {
+        List<String> rfiddesList = new ArrayList<>();
+        for (TagpointData data : matchingData) {
+            if (!rfiddesList.contains(data.getRfiddes())) {
+                rfiddesList.add(data.getRfiddes());
             }
-            resultTextView.setText(result.toString().trim());
-        } else {
-            resultTextView.setText("No matching RFID data found for: " + currentRFIDCodes);
         }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, rfiddesList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        resultSpinner.setAdapter(adapter);
+
+        if (!rfiddesList.isEmpty()) {
+            resultSpinner.setSelection(0);
+        }
+
+        resultSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedRfiddes = (String) parent.getItemAtPosition(position);
+                displayTagpointsForSelectedRfiddes(selectedRfiddes);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
+    }
+
+    private void displayTagpointsForSelectedRfiddes(String selectedRfiddes) {
+        List<TagpointData> relevantTagpoints = new ArrayList<>();
+        for (TagpointData data : tagpointDataList) {
+            if (data.getRfiddes().equals(selectedRfiddes) && currentRFIDCodes.contains(data.getRfidcode())) {
+                relevantTagpoints.add(data);
+            }
+        }
+        displayTagpoints(relevantTagpoints);
     }
 
     public void reInitialize() {
@@ -205,7 +236,6 @@ public class Tagpoint {
         }
         currentRFIDCodes.clear();
         mainQRCodeEditText.setText("");
-        resultTextView.setText("");
     }
 
     public void processQRCode(final String qrCode) {

@@ -24,6 +24,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private RFIDWithUHFUART mReader;
     private SETUP setup;
     private PopupWindow popupWindow;
+    private Spinner resultSpinner;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -110,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         button8 = findViewById(R.id.button8);
         scrollLinearLayout = findViewById(R.id.scrollLinearLayout);
         editTextText2 = findViewById(R.id.editTextText2);
-        resultTextView = findViewById(R.id.rfiddes);
+        resultSpinner = findViewById(R.id.rfiddes);
     }
 
     private void setupDateHandler() {
@@ -248,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupTagpoint() {
-        tagpoint = new Tagpoint(this, scrollLinearLayout, editTextText2, (AutoCompleteTextView) resultTextView);
+        tagpoint = new Tagpoint(this, scrollLinearLayout, editTextText2, resultSpinner);
     }
 
     private void setupQRCode() {
