@@ -143,7 +143,6 @@ public class RFID {
             if (listener != null) {
                 listener.onRFIDsScanned(rfidList);
             }
-            // Cập nhật mã RFID cuối cùng là mã hiện tại
             SETUP.setCurrentRFID(rfidList.get(rfidList.size() - 1));
         } else {
             Toast.makeText(context, "No valid RFID codes found", Toast.LENGTH_SHORT).show();

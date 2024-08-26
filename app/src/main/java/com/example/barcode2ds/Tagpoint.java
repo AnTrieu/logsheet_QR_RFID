@@ -43,7 +43,7 @@ public class Tagpoint {
     private LinearLayout scrollLinearLayout;
     private SharedPreferences prefs;
     private EditText mainQRCodeEditText;
-    private String currentRFIDCode = "";
+    private List<String> currentRFIDCodes = new ArrayList<>();
     private TextView resultTextView;
 
     public Tagpoint(Context context, LinearLayout scrollLinearLayout, EditText mainQRCodeEditText, TextView resultTextView) {
@@ -170,16 +170,27 @@ public class Tagpoint {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public void processRFIDCode(String rfidCode) {
-        if (!rfidCode.equals(currentRFIDCode)) {
-            currentRFIDCode = rfidCode;
-            List<TagpointData> matchingData = findMatchingTagpointData(rfidCode);
-            displayTagpoints(matchingData);
-            if (!matchingData.isEmpty()) {
-                resultTextView.setText(matchingData.get(0).getRfiddes());
-            } else {
-                resultTextView.setText("No matching RFID data found for: " + currentRFIDCode);
+    public void processRFIDCodes(List<String> rfidCodes) {
+        if (!rfidCodes.equals(currentRFIDCodes)) {
+            currentRFIDCodes = new ArrayList<>(rfidCodes);
+            List<TagpointData> matchingData = new ArrayList<>();
+            for (String rfidCode : rfidCodes) {
+                matchingData.addAll(findMatchingTagpointData(rfidCode));
             }
+            displayTagpoints(matchingData);
+            updateResultTextView(matchingData);
+        }
+    }
+
+    private void updateResultTextView(List<TagpointData> matchingData) {
+        if (!matchingData.isEmpty()) {
+            StringBuilder result = new StringBuilder();
+            for (TagpointData data : matchingData) {
+                result.append(data.getRfiddes()).append("\n");
+            }
+            resultTextView.setText(result.toString().trim());
+        } else {
+            resultTextView.setText("No matching RFID data found for: " + currentRFIDCodes);
         }
     }
 
@@ -191,17 +202,20 @@ public class Tagpoint {
         } else {
             loadCachedData();
         }
-        currentRFIDCode = "";
+        currentRFIDCodes.clear();
         mainQRCodeEditText.setText("");
         resultTextView.setText("");
     }
 
     public void processQRCode(final String qrCode) {
-        if (currentRFIDCode.isEmpty()) {
+        if (currentRFIDCodes.isEmpty()) {
             return;
         }
 
-        List<TagpointData> matchingRFIDTagpoints = findMatchingTagpointData(currentRFIDCode);
+        List<TagpointData> matchingRFIDTagpoints = new ArrayList<>();
+        for (String rfidCode : currentRFIDCodes) {
+            matchingRFIDTagpoints.addAll(findMatchingTagpointData(rfidCode));
+        }
 
         Collections.sort(matchingRFIDTagpoints, new Comparator<TagpointData>() {
             @Override

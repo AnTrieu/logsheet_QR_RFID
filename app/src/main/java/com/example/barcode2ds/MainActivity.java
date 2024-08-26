@@ -272,9 +272,7 @@ public class MainActivity extends AppCompatActivity {
         rfid.setOnRFIDScannedListener(new RFID.OnRFIDScannedListener() {
             @Override
             public void onRFIDsScanned(List<String> rfidCodes) {
-                for (String rfidCode : rfidCodes) {
-                    tagpoint.processRFIDCode(rfidCode);
-                }
+                tagpoint.processRFIDCodes(rfidCodes);
                 if (!rfidCodes.isEmpty()) {
                     String lastRFIDCode = rfidCodes.get(rfidCodes.size() - 1);
                     setup.updateCurrentRFID(lastRFIDCode);
