@@ -58,8 +58,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <MultiAutoCompleteTextView
-        android:id="@+id/TextView"
+    <AutoCompleteTextView
+        android:id="@+id/rfiddes"
         android:layout_width="337dp"
         android:layout_height="48dp"
         android:layout_marginTop="8dp"
@@ -67,13 +67,10 @@
         android:backgroundTint="#e9ecef"
         android:hint="Mô tả RFID code"
         android:paddingStart="15sp"
-        android:textSize="18dp"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button2"
-        android:inputType="none"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
         android:singleLine="true"
         android:ellipsize="end"
         android:scrollHorizontally="true"/>
@@ -90,7 +87,7 @@
         android:paddingStart="15sp"
         android:textSize="18dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/TextView"
+        app:layout_constraintTop_toBottomOf="@+id/rfiddes"
         android:inputType="none"
         android:focusable="false"
         android:focusableInTouchMode="false"
@@ -111,7 +108,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/editTextText2"
-        app:layout_constraintTop_toBottomOf="@+id/TextView"/>
+        app:layout_constraintTop_toBottomOf="@+id/rfiddes"/>
 
     <ScrollView
         android:id="@+id/ScrollView"

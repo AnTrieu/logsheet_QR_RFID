@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         button8 = findViewById(R.id.button8);
         scrollLinearLayout = findViewById(R.id.scrollLinearLayout);
         editTextText2 = findViewById(R.id.editTextText2);
-        resultTextView = findViewById(R.id.TextView);
+        resultTextView = findViewById(R.id.rfiddes);
     }
 
     private void setupDateHandler() {
@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupTagpoint() {
-        tagpoint = new Tagpoint(this, scrollLinearLayout, editTextText2, resultTextView);
+        tagpoint = new Tagpoint(this, scrollLinearLayout, editTextText2, (AutoCompleteTextView) resultTextView);
     }
 
     private void setupQRCode() {

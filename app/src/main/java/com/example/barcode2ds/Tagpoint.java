@@ -11,6 +11,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -44,9 +45,9 @@ public class Tagpoint {
     private SharedPreferences prefs;
     private EditText mainQRCodeEditText;
     private List<String> currentRFIDCodes = new ArrayList<>();
-    private TextView resultTextView;
+    private AutoCompleteTextView resultTextView;
 
-    public Tagpoint(Context context, LinearLayout scrollLinearLayout, EditText mainQRCodeEditText, TextView resultTextView) {
+    public Tagpoint(Context context, LinearLayout scrollLinearLayout, EditText mainQRCodeEditText, AutoCompleteTextView resultTextView) {
         this.context = context;
         this.scrollLinearLayout = scrollLinearLayout;
         this.mainQRCodeEditText = mainQRCodeEditText;
