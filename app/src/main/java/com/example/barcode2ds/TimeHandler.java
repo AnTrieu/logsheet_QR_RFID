@@ -1,4 +1,3 @@
-//Đo thời gian
 package com.example.barcode2ds;
 
 import android.content.Context;
@@ -32,7 +31,7 @@ public class TimeHandler {
         timeACTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                timeACTV.showDropDown();  // Show dropdown when clicked
+                timeACTV.showDropDown();
             }
         });
     }

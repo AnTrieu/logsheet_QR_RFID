@@ -28,7 +28,7 @@ public class QRcode {
                 if (barcodeEntity.getResultCode() == BarcodeDecoder.DECODE_SUCCESS) {
                     editTextText2.setText(barcodeEntity.getBarcodeData());
                     Log.e(TAG, "data==========================:" + barcodeEntity.getBarcodeData());
-                    stop(); // Tự động dừng sau khi quét
+                    stop();
                 } else {
                     editTextText2.setText("fail");
                 }

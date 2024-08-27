@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, initialList) {
             @Override
             public boolean isEnabled(int position) {
-                return position != 0; // Disable the first item
+                return position != 0;
             }
 
             @Override

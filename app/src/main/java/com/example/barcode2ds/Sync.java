@@ -115,8 +115,6 @@ public class Sync {
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                 conn.setDoOutput(true);
-
-                // Get the 'ma' value corresponding to the 'giatri' in the RecorderTextView
                 String recorderValue = recorderTextView.getText().toString();
                 String recorderMa = "";
                 HashMap<String, String> recordersMap = RecorderFetcher.getRecordersFromLocal(context);
@@ -126,8 +124,6 @@ public class Sync {
                         break;
                     }
                 }
-
-                // Get the time value directly from the ACTV_time
                 String timeValue = timeTextView.getText().toString();
 
                 String postData = "action=savedata_syncline" +

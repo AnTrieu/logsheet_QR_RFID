@@ -198,7 +198,7 @@ public class Tagpoint {
 
     private void updateResultSpinner(List<TagpointData> matchingData) {
         List<String> rfiddesList = new ArrayList<>();
-        rfiddesList.add("Mô tả RFID code"); // Giữ lại mục mặc định
+        rfiddesList.add("Mô tả RFID code");
 
         for (TagpointData data : matchingData) {
             if (!rfiddesList.contains(data.getRfiddes())) {
@@ -216,7 +216,7 @@ public class Tagpoint {
         resultSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position > 0) { // Chỉ xử lý khi không phải mục mặc định
+                if (position > 0) {
                     String selectedRfiddes = (String) parent.getItemAtPosition(position);
                     displayTagpointsForSelectedRfiddes(selectedRfiddes);
                 }
@@ -224,7 +224,6 @@ public class Tagpoint {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing
             }
         });
     }
@@ -306,8 +305,6 @@ public class Tagpoint {
         boolean isActive = data.getQrcode().equals(currentQRCode);
 
         updateTagpointAppearance(tagpointView, editTextValue, editTextNote, isActive);
-
-        // Thêm OnClickListener cho tagpointView
         tagpointView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -324,8 +321,6 @@ public class Tagpoint {
         );
         spacerView.setLayoutParams(spacerParams);
         scrollLinearLayout.addView(spacerView);
-
-        // Load saved values
         JSONObject savedValues = loadSavedValues(data.getIdinfo());
         if (savedValues != null) {
             editTextValue.setText(savedValues.optString("value", ""));
@@ -334,7 +329,6 @@ public class Tagpoint {
                 validateAndColorValue(editTextValue, data);
             }
         }
-
         // Thêm TextWatcher chỉ khi tagpoint được active
         if (isActive) {
             addTextWatchers(editTextValue, editTextNote, data);
@@ -358,11 +352,7 @@ public class Tagpoint {
     private void activateTagpoint(TagpointData data) {
         // Cập nhật mã QR hiện tại
         mainQRCodeEditText.setText(data.getQrcode());
-
-        // Cập nhật giao diện người dùng
         processQRCode(data.getQrcode());
-
-        // Thông báo cho người dùng
         Toast.makeText(context, "Đã kích hoạt tagpoint: " + data.getTagdes(), Toast.LENGTH_SHORT).show();
     }
 
@@ -381,8 +371,6 @@ public class Tagpoint {
         editText.setLongClickable(false);
         editText.setCursorVisible(false);
     }
-
-    // Add TextWatcher for editTextValue
     private void addTextWatchers(final EditText editTextValue, final EditText editTextNote, final TagpointData data) {
         editTextValue.addTextChangedListener(new TextWatcher() {
             @Override
@@ -398,8 +386,6 @@ public class Tagpoint {
                 saveValues(data.getIdinfo(), value, editTextNote.getText().toString());
             }
         });
-
-        // Add TextWatcher for editTextNote
         editTextNote.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
