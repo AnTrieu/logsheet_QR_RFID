@@ -2,6 +2,7 @@ package com.example.barcode2ds;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 public class Clear {
@@ -23,5 +24,9 @@ public class Clear {
         Toast.makeText(context, "All saved tagpoint data has been cleared", Toast.LENGTH_SHORT).show();
         tagpoint.reInitialize();
         tagpoint.clearResultSpinner();
+        ArrayAdapter<String> adapter = (ArrayAdapter<String>) tagpoint.getResultSpinner().getAdapter();
+        adapter.clear();
+        adapter.add("Mô tả RFID code");
+        adapter.notifyDataSetChanged();
     }
 }

@@ -189,11 +189,16 @@ public class Tagpoint {
 
     public void clearResultSpinner() {
         if (resultSpinner != null) {
-            ArrayAdapter<String> emptyAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, new ArrayList<String>());
-            emptyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            resultSpinner.setAdapter(emptyAdapter);
+            List<String> initialList = new ArrayList<>();
+            initialList.add("Mô tả RFID code");
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, initialList);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            resultSpinner.setAdapter(adapter);
         }
         currentRFIDCodes.clear();
+    }
+    public Spinner getResultSpinner() {
+        return resultSpinner;
     }
 
     private void updateResultSpinner(List<TagpointData> matchingData) {
