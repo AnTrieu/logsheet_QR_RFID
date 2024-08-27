@@ -34,6 +34,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.rscja.barcode.BarcodeDecoder;
 import com.rscja.barcode.BarcodeFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
         setupRecordersTextView();
         setupTimeACTV();
         setupButtons();
+        initializeResultSpinner();
         setupTagpoint();
         setupQRCode();
         setupRFID();
@@ -93,14 +95,6 @@ public class MainActivity extends AppCompatActivity {
         new InitTask().execute();
     }
 
-    private void setupClear() {
-        clear = new Clear(this, tagpoint);
-    }
-
-    private void setupSync() {
-        sync = new Sync(this, dateTextView, timeACTV, recordersTextView, clear);
-    }
-
     private void initializeViews() {
         dateTextView = findViewById(R.id.textview_date);
         recordersTextView = findViewById(R.id.TV_recorders);
@@ -113,6 +107,31 @@ public class MainActivity extends AppCompatActivity {
         scrollLinearLayout = findViewById(R.id.scrollLinearLayout);
         editTextText2 = findViewById(R.id.editTextText2);
         resultSpinner = findViewById(R.id.rfiddes);
+    }
+
+    private void initializeResultSpinner() {
+        List<String> initialList = new ArrayList<>();
+        initialList.add("Mô tả RFID code");
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, initialList) {
+            @Override
+            public boolean isEnabled(int position) {
+                return position != 0; // Disable the first item
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = (TextView) view;
+                if (position == 0) {
+                    tv.setTextColor(Color.GRAY);
+                } else {
+                    tv.setTextColor(Color.BLACK);
+                }
+                return view;
+            }
+        };
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        resultSpinner.setAdapter(adapter);
     }
 
     private void setupDateHandler() {
@@ -176,7 +195,6 @@ public class MainActivity extends AppCompatActivity {
             recordersTextView.setText("");
         }
     }
-
 
     private void showRecordersPopup() {
         ListView listView = new ListView(this);
@@ -275,12 +293,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRFIDsScanned(List<String> rfidCodes) {
                 tagpoint.processRFIDCodes(rfidCodes);
-                if (!rfidCodes.isEmpty()) {
-                    String lastRFIDCode = rfidCodes.get(rfidCodes.size() - 1);
-                    setup.updateCurrentRFID(lastRFIDCode);
-                }
+                setup.updateCurrentRFIDs(rfidCodes);
             }
         });
+    }
+
+    private void setupClear() {
+        clear = new Clear(this, tagpoint);
+    }
+
+    private void setupSync() {
+        sync = new Sync(this, dateTextView, timeACTV, recordersTextView, clear);
     }
 
     @Override

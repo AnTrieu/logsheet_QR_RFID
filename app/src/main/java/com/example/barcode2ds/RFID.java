@@ -11,9 +11,7 @@ import com.rscja.deviceapi.RFIDWithUHFUART;
 import com.rscja.deviceapi.entity.UHFTAGInfo;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class RFID {
     private static final String TAG = "RFID";
@@ -129,21 +127,21 @@ public class RFID {
     }
 
     private void processScannedRFIDs(List<UHFTAGInfo> results) {
-        Set<String> uniqueRFIDs = new HashSet<>();
+        List<String> uniqueRFIDs = new ArrayList<>();
         for (UHFTAGInfo result : results) {
             String scannedRFID = result.getEPC();
             if (scannedRFID.length() >= 4) {
                 scannedRFID = scannedRFID.substring(0, 4);
-                uniqueRFIDs.add(scannedRFID);
+                if (!uniqueRFIDs.contains(scannedRFID)) {
+                    uniqueRFIDs.add(scannedRFID);
+                }
             }
         }
 
         if (!uniqueRFIDs.isEmpty()) {
-            List<String> rfidList = new ArrayList<>(uniqueRFIDs);
             if (listener != null) {
-                listener.onRFIDsScanned(rfidList);
+                listener.onRFIDsScanned(uniqueRFIDs);
             }
-            SETUP.setCurrentRFID(rfidList.get(rfidList.size() - 1));
         } else {
             Toast.makeText(context, "No valid RFID codes found", Toast.LENGTH_SHORT).show();
         }

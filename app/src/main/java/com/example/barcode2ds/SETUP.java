@@ -2,6 +2,7 @@ package com.example.barcode2ds;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import com.rscja.deviceapi.RFIDWithUHFUART;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SETUP {
@@ -27,6 +29,7 @@ public class SETUP {
     private TextView tvCurrentRFID;
     private Spinner spFrequency;
     private static String currentRFID = "Unknown";
+    private List<String> scannedRFIDs = new ArrayList<>();
 
     private static final Map<String, Byte> frequencyModeMap = new HashMap<>();
     private static final Map<Byte, String> reverseFrequencyModeMap = new HashMap<>();
@@ -70,21 +73,19 @@ public class SETUP {
         tvCurrentPower = dialogView.findViewById(R.id.tvCurrentPower);
         tvCurrentRFID = dialogView.findViewById(R.id.tvCurrentRFID);
 
-        // Setup frequency spinner
         ArrayAdapter<String> frequencyAdapter = new ArrayAdapter<>(context,
                 android.R.layout.simple_spinner_item,
                 new ArrayList<>(frequencyModeMap.keySet()));
         frequencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spFrequency.setAdapter(frequencyAdapter);
 
-        // Setup power spinner
         ArrayAdapter<CharSequence> powerAdapter = ArrayAdapter.createFromResource(context,
                 R.array.power_levels, android.R.layout.simple_spinner_item);
         powerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spPower.setAdapter(powerAdapter);
 
-        // Display current values
         updateCurrentValues();
+        updateCurrentRFIDs(scannedRFIDs);
 
         btnSetFrequency.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,12 +117,10 @@ public class SETUP {
     }
 
     private void updateCurrentValues() {
-        // Get current frequency
         byte frequencyMode = (byte) mReader.getFrequencyMode();
         String frequencyString = reverseFrequencyModeMap.get(frequencyMode);
         if (frequencyString != null) {
             tvCurrentFrequency.setText("Current Frequency: " + frequencyString);
-            // Set the spinner to the current frequency
             ArrayAdapter adapter = (ArrayAdapter) spFrequency.getAdapter();
             int position = adapter.getPosition(frequencyString);
             if (position != -1) {
@@ -131,22 +130,48 @@ public class SETUP {
             tvCurrentFrequency.setText("Current Frequency: Unknown (Mode: " + frequencyMode + ")");
         }
 
-        // Log the current frequency mode
         Log.d(TAG, "Current frequency mode: " + frequencyMode);
 
-        // Get current power
         int power = mReader.getPower();
         tvCurrentPower.setText("Current Power: " + power);
 
-        // Update RFID
-        updateCurrentRFID(currentRFID);
+        updateCurrentRFIDs(scannedRFIDs);
     }
 
-    public void updateCurrentRFID(String rfidValue) {
+    public void updateCurrentRFIDs(List<String> rfidValues) {
+        this.scannedRFIDs = rfidValues;
         if (tvCurrentRFID != null) {
-            tvCurrentRFID.setText("Current RFID: " + rfidValue);
+            tvCurrentRFID.setText("Scanned RFIDs: " + rfidValues.size());
+            setupRFIDSelection();
         }
-        currentRFID = rfidValue;
+    }
+
+    private void setupRFIDSelection() {
+        tvCurrentRFID.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRFIDSelectionDialog();
+            }
+        });
+    }
+
+    private void showRFIDSelectionDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Select RFID");
+
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context, android.R.layout.select_dialog_singlechoice);
+        arrayAdapter.addAll(scannedRFIDs);
+
+        builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String selectedRFID = arrayAdapter.getItem(which);
+                currentRFID = selectedRFID;
+                tvCurrentRFID.setText("Selected RFID: " + selectedRFID);
+            }
+        });
+
+        builder.show();
     }
 
     private void setFrequency(String selectedFrequency) {
@@ -166,7 +191,6 @@ public class SETUP {
             Log.e(TAG, "Set frequency failed");
         }
 
-        // Verify the set frequency
         updateCurrentValues();
     }
 
@@ -184,10 +208,10 @@ public class SETUP {
             return;
         }
 
-        // Assuming we're writing to EPC memory bank
         if (mReader.writeData("00000000", RFIDWithUHFUART.Bank_EPC, 2, data.length() / 4, data)) {
             Toast.makeText(context, R.string.uhf_msg_write_succ, Toast.LENGTH_SHORT).show();
-            updateCurrentRFID(data); // Update the RFID value after successful write
+            currentRFID = data;
+            tvCurrentRFID.setText("Selected RFID: " + data);
         } else {
             Toast.makeText(context, R.string.uhf_msg_write_fail, Toast.LENGTH_SHORT).show();
         }

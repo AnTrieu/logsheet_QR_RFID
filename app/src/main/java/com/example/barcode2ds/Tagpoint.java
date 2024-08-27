@@ -11,6 +11,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -132,7 +133,7 @@ public class Tagpoint {
                     JSONObject item = dataArray.getJSONObject(i);
                     TagpointData tagpointData = new TagpointData(
                             item.getString("idinfo"),
-                             item.getString("rfidcode"),
+                            item.getString("rfidcode"),
                             item.getString("rfiddes"),
                             item.getString("qrcode"),
                             item.getString("tagdes"),
@@ -197,25 +198,28 @@ public class Tagpoint {
 
     private void updateResultSpinner(List<TagpointData> matchingData) {
         List<String> rfiddesList = new ArrayList<>();
+        rfiddesList.add("Mô tả RFID code"); // Giữ lại mục mặc định
+
         for (TagpointData data : matchingData) {
             if (!rfiddesList.contains(data.getRfiddes())) {
                 rfiddesList.add(data.getRfiddes());
             }
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, rfiddesList);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        resultSpinner.setAdapter(adapter);
+        ArrayAdapter<String> currentAdapter = (ArrayAdapter<String>) resultSpinner.getAdapter();
+        currentAdapter.clear();
+        currentAdapter.addAll(rfiddesList);
+        currentAdapter.notifyDataSetChanged();
 
-        if (!rfiddesList.isEmpty()) {
-            resultSpinner.setSelection(0);
-        }
+        resultSpinner.setSelection(0);
 
         resultSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedRfiddes = (String) parent.getItemAtPosition(position);
-                displayTagpointsForSelectedRfiddes(selectedRfiddes);
+                if (position > 0) { // Chỉ xử lý khi không phải mục mặc định
+                    String selectedRfiddes = (String) parent.getItemAtPosition(position);
+                    displayTagpointsForSelectedRfiddes(selectedRfiddes);
+                }
             }
 
             @Override
@@ -394,7 +398,7 @@ public class Tagpoint {
                 saveValues(data.getIdinfo(), value, editTextNote.getText().toString());
             }
         });
-        
+
         // Add TextWatcher for editTextNote
         editTextNote.addTextChangedListener(new TextWatcher() {
             @Override
