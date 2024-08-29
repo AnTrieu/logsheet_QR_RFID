@@ -182,8 +182,13 @@ public class Tagpoint {
             for (String rfidCode : rfidCodes) {
                 matchingData.addAll(findMatchingTagpointData(rfidCode));
             }
-            displayTagpoints(matchingData);
             updateResultSpinner(matchingData);
+            if (resultSpinner.getSelectedItemPosition() != 0) {
+                String selectedRfiddes = (String) resultSpinner.getSelectedItem();
+                displayTagpointsForSelectedRfiddes(selectedRfiddes);
+            } else {
+                scrollLinearLayout.removeAllViews();
+            }
         }
     }
 
@@ -221,7 +226,9 @@ public class Tagpoint {
         resultSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position > 0) {
+                if (position == 0) {
+                    scrollLinearLayout.removeAllViews();
+                } else {
                     String selectedRfiddes = (String) parent.getItemAtPosition(position);
                     displayTagpointsForSelectedRfiddes(selectedRfiddes);
                 }
@@ -234,6 +241,12 @@ public class Tagpoint {
     }
 
     private void displayTagpointsForSelectedRfiddes(String selectedRfiddes) {
+        if ("Mô tả RFID code".equals(selectedRfiddes)) {
+            // Không hiển thị tagpoint nếu "Mô tả RFID code" được chọn
+            scrollLinearLayout.removeAllViews();
+            return;
+        }
+
         List<TagpointData> relevantTagpoints = new ArrayList<>();
         for (TagpointData data : tagpointDataList) {
             if (data.getRfiddes().equals(selectedRfiddes) && currentRFIDCodes.contains(data.getRfidcode())) {
@@ -291,6 +304,9 @@ public class Tagpoint {
 
     private void displayTagpoints(List<TagpointData> dataList) {
         scrollLinearLayout.removeAllViews();
+        if (resultSpinner.getSelectedItemPosition() == 0) {
+            return;
+        }
         String currentQRCode = mainQRCodeEditText.getText().toString();
         for (TagpointData data : dataList) {
             createTagpoint(data, currentQRCode);
