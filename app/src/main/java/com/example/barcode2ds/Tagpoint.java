@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -216,6 +218,8 @@ public class Tagpoint {
             }
         }
 
+        int rfiddesCount = rfiddesList.size() - 1; // Subtract 1 to exclude the default item
+
         ArrayAdapter<String> currentAdapter = (ArrayAdapter<String>) resultSpinner.getAdapter();
         currentAdapter.clear();
         currentAdapter.addAll(rfiddesList);
@@ -223,9 +227,22 @@ public class Tagpoint {
 
         resultSpinner.setSelection(0);
 
+        if (rfiddesCount == 0) {
+            Toast.makeText(context, "Không có tagname nào được tìm thấy", Toast.LENGTH_SHORT).show();
+        } else {
+            // Blink animation for the spinner
+            Animation blinkAnimation = new AlphaAnimation(0.0f, 1.0f);
+            blinkAnimation.setDuration(300);
+            blinkAnimation.setStartOffset(20);
+            blinkAnimation.setRepeatMode(Animation.REVERSE);
+            blinkAnimation.setRepeatCount(Animation.INFINITE);
+            resultSpinner.startAnimation(blinkAnimation);
+        }
+
         resultSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                resultSpinner.clearAnimation(); // Stop blinking when an item is selected
                 if (position == 0) {
                     scrollLinearLayout.removeAllViews();
                 } else {
@@ -236,6 +253,7 @@ public class Tagpoint {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+                resultSpinner.clearAnimation(); // Stop blinking when nothing is selected
             }
         });
     }

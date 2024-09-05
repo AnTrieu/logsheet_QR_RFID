@@ -74,7 +74,7 @@
                     android:id="@+id/btnScanRfid"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="RFID" />
+                    android:text="READ RFID" />
 
                 <TextView
                     android:id="@+id/tvCurrentRFID"
@@ -87,7 +87,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Write RFID Data:"
+                android:text="Write RFID Data to:"
                 android:layout_marginBottom="4dp"/>
 
             <EditText
