@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             mReader = RFIDWithUHFUART.getInstance();
-            setup = new SETUP(this, mReader);
+            setup = new SETUP(this, mReader, rfid);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -293,7 +293,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRFIDsScanned(List<String> rfidCodes) {
                 tagpoint.processRFIDCodes(rfidCodes);
-                setup.updateCurrentRFIDs(rfidCodes);
+                setup.updateScannedRFIDs(rfidCodes);
+            }
+        });
+        rfid.addOnRFIDScannedListener(new RFID.OnRFIDScannedListener() {
+            @Override
+            public void onRFIDsScanned(List<String> rfidCodes) {
+                setup.updateScannedRFIDs(rfidCodes);
             }
         });
     }

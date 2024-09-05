@@ -24,6 +24,10 @@ public class RFID {
         void onRFIDsScanned(List<String> rfidCodes);
     }
 
+    public void addOnRFIDScannedListener(OnRFIDScannedListener listener) {
+        this.listener = listener;
+    }
+
     public void setOnRFIDScannedListener(OnRFIDScannedListener listener) {
         this.listener = listener;
     }

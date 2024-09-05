@@ -30,6 +30,7 @@ public class SETUP {
     private Spinner spFrequency;
     private static String currentRFID = "Unknown";
     private List<String> scannedRFIDs = new ArrayList<>();
+    private RFID rfid;
 
     private static final Map<String, Byte> frequencyModeMap = new HashMap<>();
     private static final Map<Byte, String> reverseFrequencyModeMap = new HashMap<>();
@@ -50,9 +51,10 @@ public class SETUP {
         }
     }
 
-    public SETUP(Context context, RFIDWithUHFUART reader) {
+    public SETUP(Context context, RFIDWithUHFUART reader, RFID rfid) {
         this.context = context;
         this.mReader = reader;
+        this.rfid = rfid;
     }
 
     public void showSetupPopup() {
@@ -105,6 +107,18 @@ public class SETUP {
             }
         });
 
+        Button btnScanRfid = dialogView.findViewById(R.id.btnScanRfid);
+        btnScanRfid.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (rfid != null) {
+                    rfid.startScan();
+                } else {
+                    Toast.makeText(context, "RFID scanner not initialized", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         btnWriteRFID.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,6 +158,11 @@ public class SETUP {
             tvCurrentRFID.setText("Scanned RFIDs: " + rfidValues.size());
             setupRFIDSelection();
         }
+    }
+
+    public void updateScannedRFIDs(List<String> rfidCodes) {
+        this.scannedRFIDs = rfidCodes;
+        updateCurrentRFIDs(rfidCodes);
     }
 
     private void setupRFIDSelection() {

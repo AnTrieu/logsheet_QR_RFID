@@ -78,9 +78,7 @@ public class login extends AppCompatActivity {
                     String error = jsonObject.getString("error");
                     if ("ok".equals(status)) {
                         Toast.makeText(login.this, "Login successful!", Toast.LENGTH_SHORT).show();
-                        //
                         saveLoginState(true);
-                        //
                         Intent mainIntent = new Intent(login.this, MainActivity.class);
                         startActivity(mainIntent);
                         finish();

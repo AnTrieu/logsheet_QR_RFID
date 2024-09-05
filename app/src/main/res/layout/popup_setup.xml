@@ -65,11 +65,24 @@
         android:text="Set Power"
         android:layout_marginBottom="16dp"/>
 
-            <TextView
-                android:id="@+id/tvCurrentRFID"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"/>
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnScanRfid"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="RFID" />
+
+                <TextView
+                    android:id="@+id/tvCurrentRFID"
+                    android:layout_width="109dp"
+                    android:layout_height="48dp"
+                    android:paddingTop="9sp"
+                    android:text="Scanned RFIDs:" />
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
