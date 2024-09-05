@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.content.SharedPreferences;
+
 public class SETUP {
     private static final String TAG = "SETUP";
     private Context context;
@@ -32,6 +34,9 @@ public class SETUP {
     private static String currentRFID = "Unknown";
     private List<String> scannedRFIDs = new ArrayList<>();
     private RFID rfid;
+
+    private EditText etApiAddress;
+    private static final String PREF_API_ADDRESS = "api_address";
 
     private static final Map<String, Byte> frequencyModeMap = new HashMap<>();
     private static final Map<Byte, String> reverseFrequencyModeMap = new HashMap<>();
@@ -76,6 +81,9 @@ public class SETUP {
         tvCurrentPower = dialogView.findViewById(R.id.tvCurrentPower);
         tvCurrentRFID = dialogView.findViewById(R.id.tvCurrentRFID);
 
+        etApiAddress = dialogView.findViewById(R.id.textAPI);
+        Button btnSetApi = dialogView.findViewById(R.id.btnAPI);
+
         ArrayAdapter<String> frequencyAdapter = new ArrayAdapter<>(context,
                 android.R.layout.simple_spinner_item,
                 new ArrayList<>(frequencyModeMap.keySet()));
@@ -89,6 +97,10 @@ public class SETUP {
 
         updateCurrentValues();
         updateCurrentRFIDs(scannedRFIDs);
+
+        SharedPreferences prefs = context.getSharedPreferences("APISettings", Context.MODE_PRIVATE);
+        String savedApiAddress = prefs.getString(PREF_API_ADDRESS, "");
+        etApiAddress.setText(savedApiAddress);
 
         Button btnClose = dialogView.findViewById(R.id.btnClose);
         btnClose.setOnClickListener(new View.OnClickListener() {
@@ -136,8 +148,34 @@ public class SETUP {
             }
         });
 
+        btnSetApi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String apiAddress = etApiAddress.getText().toString().trim();
+                if (!apiAddress.isEmpty()) {
+                    saveApiAddress(apiAddress);
+                    Toast.makeText(context, "API address saved", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Please enter a valid API address", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         dialog.show();
     }
+
+    private void saveApiAddress(String apiAddress) {
+        SharedPreferences prefs = context.getSharedPreferences("APISettings", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(PREF_API_ADDRESS, apiAddress);
+        editor.apply();
+    }
+
+    public static String getApiAddress(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("APISettings", Context.MODE_PRIVATE);
+        return prefs.getString(PREF_API_ADDRESS, "");
+    }
+
 
     private void updateCurrentValues() {
         byte frequencyMode = (byte) mReader.getFrequencyMode();

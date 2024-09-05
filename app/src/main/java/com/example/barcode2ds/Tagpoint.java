@@ -36,10 +36,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import android.os.Handler;
 
 public class Tagpoint {
+    private static String SERVER_URL;
+
+    public Tagpoint(Context context, ...) {
+        SERVER_URL = SETUP.getApiAddress(context);
+    }
     private static final String TAG = "Tagpoint";
-    private static final String SERVER_URL = "https://det.app/DETAPI/LOGSHEET/logsheetdata";
     private static final String TOKEN = "sdfghjkxcvbnmasdfghjkwerg5fabdsfghjkjhgfdsrtyueso";
     private static final String PREF_NAME = "TagpointPrefs";
     private static final String PREF_DATA_KEY = "cachedData";
@@ -237,6 +242,14 @@ public class Tagpoint {
             blinkAnimation.setRepeatMode(Animation.REVERSE);
             blinkAnimation.setRepeatCount(Animation.INFINITE);
             resultSpinner.startAnimation(blinkAnimation);
+
+            // Stop blinking after 3 seconds
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    resultSpinner.clearAnimation();
+                }
+            }, 3000); // 3000 milliseconds = 3 seconds
         }
 
         resultSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

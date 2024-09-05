@@ -71,7 +71,7 @@ public class login extends AppCompatActivity {
     }
 
     private void login(final String username, final String password) {
-        String url = "https://det.app/DETAPI/LOGSHEET/logsheetdata";
+        String url = SETUP.getApiAddress(getApplicationContext());
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {

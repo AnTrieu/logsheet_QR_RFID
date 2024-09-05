@@ -26,6 +26,23 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <EditText
+                    android:id="@+id/textAPI"
+                    android:layout_width="match_parent"
+                    android:layout_height="48sp"
+                    android:ems="10"
+                    android:inputType="text"
+                    android:hint="Địa chỉ API"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:scrollHorizontally="true"/>
+
+                <Button
+                    android:id="@+id/btnAPI"
+                    android:layout_width="116dp"
+                    android:layout_height="wrap_content"
+                    android:text="Connect" />
+
                 <TextView
                     android:id="@+id/tvCurrentFrequency"
                     android:layout_width="wrap_content"

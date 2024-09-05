@@ -25,8 +25,12 @@ public class RecorderFetcher {
         void onFetchFailed(Exception e);
     }
 
+    private static String URL_STRING;
+
+    public static void initialize(Context context) {
+        URL_STRING = SETUP.getApiAddress(context);
+    }
     private static final String TOKEN = "sdfghjkxcvbnmasdfghjkwerg5fabdsfghjkjhgfdsrtyueso";
-    private static final String URL_STRING = "https://det.app/DETAPI/LOGSHEET/logsheetdata";
     private static final String PREF_NAME = "RecorderData";
     private static final String LAST_SELECTED_KEY = "lastSelectedRecorder";
     private static final String SERVER_DATA_KEY = "serverData";
