@@ -28,6 +28,7 @@ public class SETUP {
     private TextView tvCurrentPower;
     private TextView tvCurrentRFID;
     private Spinner spFrequency;
+    private Spinner spPower;
     private static String currentRFID = "Unknown";
     private List<String> scannedRFIDs = new ArrayList<>();
     private RFID rfid;
@@ -66,7 +67,7 @@ public class SETUP {
         final AlertDialog dialog = builder.create();
 
         spFrequency = dialogView.findViewById(R.id.spFrequency);
-        final Spinner spPower = dialogView.findViewById(R.id.spPower);
+        spPower = dialogView.findViewById(R.id.spPower);
         final EditText etWriteData = dialogView.findViewById(R.id.etWriteData);
         Button btnSetFrequency = dialogView.findViewById(R.id.btnSetFrequency);
         Button btnSetPower = dialogView.findViewById(R.id.btnSetPower);
@@ -147,7 +148,10 @@ public class SETUP {
         Log.d(TAG, "Current frequency mode: " + frequencyMode);
 
         int power = mReader.getPower();
-        tvCurrentPower.setText("Current Power: " + power);
+        tvCurrentPower.setText("Current Power: " + power + " dBm");
+        if (power >= 1 && power <= 30) {
+            spPower.setSelection(power - 1);
+        }
 
         updateCurrentRFIDs(scannedRFIDs);
     }
@@ -216,6 +220,8 @@ public class SETUP {
     private void setPower(int power) {
         if (mReader.setPower(power)) {
             Toast.makeText(context, R.string.uhf_msg_set_power_succ, Toast.LENGTH_SHORT).show();
+            spPower.setSelection(power - 1);
+            tvCurrentPower.setText("Current Power: " + power + " dBm");
         } else {
             Toast.makeText(context, R.string.uhf_msg_set_power_fail, Toast.LENGTH_SHORT).show();
         }
