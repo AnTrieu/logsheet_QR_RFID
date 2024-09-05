@@ -4,105 +4,120 @@
     android:layout_height="wrap_content"
     android:padding="16dp">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <Button
+            android:id="@+id/btnClose"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end"
+            android:background="@android:drawable/ic_menu_close_clear_cancel"
+            android:contentDescription="Close" />
+
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-    <TextView
-        android:id="@+id/tvCurrentFrequency"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Current Frequency: Unknown"
-        android:layout_marginBottom="8dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Set Frequency:"
-        android:layout_marginBottom="4dp"/>
-
-    <Spinner
-        android:id="@+id/spFrequency"
-        android:layout_width="match_parent"
-        android:layout_height="48sp"
-        android:layout_marginBottom="8dp"/>
-
-    <Button
-        android:id="@+id/btnSetFrequency"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Set Frequency"
-        android:layout_marginBottom="16dp"/>
-
-    <TextView
-        android:id="@+id/tvCurrentPower"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Current Power: Unknown"
-        android:layout_marginBottom="8dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Set Power:"
-        android:layout_marginBottom="4dp"/>
-
-    <Spinner
-        android:id="@+id/spPower"
-        android:layout_width="match_parent"
-        android:layout_height="48sp"
-        android:layout_marginBottom="8dp"/>
-
-    <Button
-        android:id="@+id/btnSetPower"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Set Power"
-        android:layout_marginBottom="16dp"/>
+            android:layout_height="wrap_content">
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/btnScanRfid"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="READ RFID" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tvCurrentRFID"
-                    android:layout_width="109dp"
-                    android:layout_height="48dp"
-                    android:paddingTop="9sp"
-                    android:text="Scanned RFIDs:" />
+                    android:id="@+id/tvCurrentFrequency"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Current Frequency: Unknown" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="Set Frequency:" />
+
+                <Spinner
+                    android:id="@+id/spFrequency"
+                    android:layout_width="match_parent"
+                    android:layout_height="48sp"
+                    android:layout_marginBottom="8dp" />
+
+                <Button
+                    android:id="@+id/btnSetFrequency"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Set Frequency" />
+
+                <TextView
+                    android:id="@+id/tvCurrentPower"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Current Power: Unknown" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="Set Power:" />
+
+                <Spinner
+                    android:id="@+id/spPower"
+                    android:layout_width="match_parent"
+                    android:layout_height="48sp"
+                    android:layout_marginBottom="8dp" />
+
+                <Button
+                    android:id="@+id/btnSetPower"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Set Power" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnScanRfid"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="READ RFID" />
+
+                    <TextView
+                        android:id="@+id/tvCurrentRFID"
+                        android:layout_width="109dp"
+                        android:layout_height="48dp"
+                        android:paddingTop="9sp"
+                        android:text="Scanned RFIDs:" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="Write RFID Data to:" />
+
+                <EditText
+                    android:id="@+id/etWriteData"
+                    android:layout_width="match_parent"
+                    android:layout_height="48sp"
+                    android:layout_marginBottom="8dp"
+                    android:hint="Enter data to write" />
+
+                <Button
+                    android:id="@+id/btnWriteRFID"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Write RFID" />
+
             </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Write RFID Data to:"
-                android:layout_marginBottom="4dp"/>
-
-            <EditText
-                android:id="@+id/etWriteData"
-                android:layout_width="match_parent"
-                android:layout_height="48sp"
-                android:hint="Enter data to write"
-                android:layout_marginBottom="8dp"/>
-
-            <Button
-                android:id="@+id/btnWriteRFID"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Write RFID"/>
-
-        </LinearLayout>
-    </ScrollView>
 </RelativeLayout>

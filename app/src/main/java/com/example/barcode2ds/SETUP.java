@@ -90,6 +90,14 @@ public class SETUP {
         updateCurrentValues();
         updateCurrentRFIDs(scannedRFIDs);
 
+        Button btnClose = dialogView.findViewById(R.id.btnClose);
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
         btnSetFrequency.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
