@@ -41,6 +41,12 @@ import java.util.Map;
 
 import com.rscja.deviceapi.RFIDWithUHFUART;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 public class MainActivity extends AppCompatActivity {
     TextView recordersTextView, dateTextView, resultTextView;
     AutoCompleteTextView timeACTV;
@@ -322,6 +328,47 @@ public class MainActivity extends AppCompatActivity {
                 RecorderFetcher.saveLastSelectedRecorder(this, selectedGiatri + ";" + selectedMa);
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        showExitDialog();
+    }
+
+    private void showExitDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Exit Application");
+        builder.setMessage("Choose an option:");
+        builder.setPositiveButton("Log out", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                logOut();
+            }
+        });
+        builder.setNegativeButton("Turn off", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finishAffinity();
+            }
+        });
+        builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.show();
+    }
+
+    private void logOut() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("isLoggedIn", false);
+        editor.apply();
+
+        Intent loginIntent = new Intent(MainActivity.this, login.class);
+        loginIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(loginIntent);
     }
 
     @Override
