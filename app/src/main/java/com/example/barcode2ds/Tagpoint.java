@@ -41,7 +41,7 @@ import android.os.Handler;
 public class Tagpoint {
     private static String SERVER_URL;
 
-    public Tagpoint(Context context, ...) {
+    public static void initialize(Context context) {
         SERVER_URL = SETUP.getApiAddress(context);
     }
     private static final String TAG = "Tagpoint";
