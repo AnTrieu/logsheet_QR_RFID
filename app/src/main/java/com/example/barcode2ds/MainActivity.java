@@ -299,13 +299,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRFIDsScanned(List<String> rfidCodes) {
                 tagpoint.processRFIDCodes(rfidCodes);
-                setup.updateScannedRFIDs(rfidCodes);
-            }
-        });
-        rfid.addOnRFIDScannedListener(new RFID.OnRFIDScannedListener() {
-            @Override
-            public void onRFIDsScanned(List<String> rfidCodes) {
-                setup.updateScannedRFIDs(rfidCodes);
+                setup.updateCurrentRFIDs(rfidCodes);
             }
         });
     }
