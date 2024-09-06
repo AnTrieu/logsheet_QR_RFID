@@ -108,7 +108,7 @@
 
                     <TextView
                         android:id="@+id/tvCurrentRFID"
-                        android:layout_width="109dp"
+                        android:layout_width="181dp"
                         android:layout_height="48dp"
                         android:paddingTop="9sp"
                         android:text="Scanned RFIDs:" />

@@ -22,7 +22,11 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Sync {
-    private static final String SERVER_URL = "https://det.app/DETAPI/LOGSHEET/logsheetdata";
+    private static String SERVER_URL = "";
+
+    public static void updateApiUrl(String url) {
+        SERVER_URL = url;
+    }
     private static final String TOKEN = "sdfghjkxcvbnmasdfghjkwerg5fabdsfghjkjhgfdsrtyueso";
     private static final String PREF_NAME = "TagpointPrefs";
     private static final String PREF_CHANGES_KEY = "userChanges";

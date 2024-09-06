@@ -3,7 +3,6 @@ package com.example.barcode2ds;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -51,6 +50,10 @@ public class SETUP {
             reverseFrequencyModeMap.put(entry.getValue(), entry.getKey());
         }
     }
+
+    private EditText textAPI;
+    private Button btnAPI;
+    private OnApiUrlChangedListener apiUrlChangedListener;
 
     public SETUP(Context context, RFIDWithUHFUART reader, RFID rfid) {
         this.context = context;
@@ -136,7 +139,52 @@ public class SETUP {
             }
         });
 
+        setupApiUrlInput(dialogView);
+
         dialog.show();
+    }
+
+    public interface OnApiUrlChangedListener {
+        void onApiUrlChanged(String newUrl);
+    }
+
+    public void setOnApiUrlChangedListener(OnApiUrlChangedListener listener) {
+        this.apiUrlChangedListener = listener;
+    }
+
+    private void setupApiUrlInput(View dialogView) {
+        textAPI = dialogView.findViewById(R.id.textAPI);
+        btnAPI = dialogView.findViewById(R.id.btnAPI);
+
+        final String savedUrl = APIManager.getApiUrl(context);
+        if (!savedUrl.isEmpty()) {
+            textAPI.setText(savedUrl);
+        }
+
+        btnAPI.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url = textAPI.getText().toString().trim();
+                if (url.isEmpty()) {
+                    Toast.makeText(context, "Chưa nhập địa chỉ API", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (!url.equals(savedUrl)) {
+                        APIManager.saveApiUrl(context, url);
+                        updateApiUrl(url);
+                        Toast.makeText(context, "Đã cập nhật địa chỉ API", Toast.LENGTH_SHORT).show();
+                        if (apiUrlChangedListener != null) {
+                            apiUrlChangedListener.onApiUrlChanged(url);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void updateApiUrl(String url) {
+        RecorderFetcher.updateApiUrl(url);
+        Sync.updateApiUrl(url);
+        Tagpoint.updateApiUrl(url);
     }
 
     private void updateCurrentValues() {
@@ -152,8 +200,6 @@ public class SETUP {
         } else {
             tvCurrentFrequency.setText("Current Frequency: Unknown (Mode: " + frequencyMode + ")");
         }
-
-        Log.d(TAG, "Current frequency mode: " + frequencyMode);
 
         int power = mReader.getPower();
         tvCurrentPower.setText("Current Power: " + power + " dBm");
@@ -213,13 +259,10 @@ public class SETUP {
             return;
         }
 
-        Log.d(TAG, "Setting frequency mode to: " + mode);
         if (mReader.setFrequencyMode(mode)) {
             Toast.makeText(context, R.string.uhf_msg_set_frequency_succ, Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "Set frequency successful");
         } else {
             Toast.makeText(context, R.string.uhf_msg_set_frequency_fail, Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "Set frequency failed");
         }
 
         updateCurrentValues();

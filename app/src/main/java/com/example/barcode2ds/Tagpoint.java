@@ -1,6 +1,9 @@
 package com.example.barcode2ds;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
@@ -39,7 +42,11 @@ import java.util.List;
 
 public class Tagpoint {
     private static final String TAG = "Tagpoint";
-    private static final String SERVER_URL = "https://det.app/DETAPI/LOGSHEET/logsheetdata";
+    private static String SERVER_URL = "";
+
+    public static void updateApiUrl(String url) {
+        SERVER_URL = url;
+    }
     private static final String TOKEN = "sdfghjkxcvbnmasdfghjkwerg5fabdsfghjkjhgfdsrtyueso";
     private static final String PREF_NAME = "TagpointPrefs";
     private static final String PREF_DATA_KEY = "cachedData";

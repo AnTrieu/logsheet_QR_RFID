@@ -91,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
         setupClear();
         setupSync();
 
+
+
         try {
             mReader = RFIDWithUHFUART.getInstance();
             setup = new SETUP(this, mReader, rfid);
@@ -98,7 +100,50 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        String savedUrl = APIManager.getApiUrl(this);
+        if (!savedUrl.isEmpty()) {
+            RecorderFetcher.updateApiUrl(savedUrl);
+            Sync.updateApiUrl(savedUrl);
+            Tagpoint.updateApiUrl(savedUrl);
+        } else {
+            Toast.makeText(this, "Chưa nhập địa chỉ API", Toast.LENGTH_SHORT).show();
+        }
+
         new InitTask().execute();
+
+        loadAndApplySavedApiUrl();
+
+        setup.setOnApiUrlChangedListener(new SETUP.OnApiUrlChangedListener() {
+            @Override
+            public void onApiUrlChanged(String newUrl) {
+                reinitializeWithNewUrl(newUrl);
+            }
+        });
+    }
+
+    private void loadAndApplySavedApiUrl() {
+        String savedUrl = APIManager.getApiUrl(this);
+        if (!savedUrl.isEmpty()) {
+            reinitializeWithNewUrl(savedUrl);
+        } else {
+            Toast.makeText(this, "Chưa có địa chỉ API được lưu. Vui lòng nhập trong phần Setup.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void reinitializeWithNewUrl(String newUrl) {
+        //Các đối tượng
+        RecorderFetcher.updateApiUrl(newUrl);
+        Sync.updateApiUrl(newUrl);
+        Tagpoint.updateApiUrl(newUrl);
+
+        // Danh sách người ghi
+        setupRecordersTextView();
+
+        // Đồng bộ dữ liệu
+        sync = new Sync(this, dateTextView, timeACTV, recordersTextView, clear);
+
+        // Tagname
+        tagpoint = new Tagpoint(this, scrollLinearLayout, editTextText2, resultSpinner);
     }
 
     private void initializeViews() {
