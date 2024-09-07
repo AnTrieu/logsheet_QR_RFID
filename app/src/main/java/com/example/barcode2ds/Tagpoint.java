@@ -303,9 +303,9 @@ public class Tagpoint {
         String matchingRfiddes = null;
 
         for (TagpointData data : tagpointDataList) {
-            if (data.getQrcode().equals(qrCode) && currentRFIDCodes.contains(data.getRfidcode())) {
+            if (currentRFIDCodes.contains(data.getRfidcode())) {
                 matchingTagpoints.add(data);
-                if (matchingRfiddes == null) {
+                if (data.getQrcode().equals(qrCode) && matchingRfiddes == null) {
                     matchingRfiddes = data.getRfiddes();
                 }
             }
@@ -314,18 +314,6 @@ public class Tagpoint {
         if (matchingRfiddes != null) {
             updateSpinnerSelection(matchingRfiddes);
         }
-
-        Collections.sort(matchingTagpoints, new Comparator<TagpointData>() {
-            @Override
-            public int compare(TagpointData a, TagpointData b) {
-                if (a.getQrcode().equals(qrCode) && !b.getQrcode().equals(qrCode)) {
-                    return -1;
-                } else if (!a.getQrcode().equals(qrCode) && b.getQrcode().equals(qrCode)) {
-                    return 1;
-                }
-                return 0;
-            }
-        });
 
         displayTagpoints(matchingTagpoints);
     }
@@ -353,7 +341,22 @@ public class Tagpoint {
         if (resultSpinner.getSelectedItemPosition() == 0) {
             return;
         }
-        String currentQRCode = mainQRCodeEditText.getText().toString();
+        final String currentQRCode = mainQRCodeEditText.getText().toString();
+
+        // Sắp xếp dataList để đưa các tagpoint active lên đầu
+        Collections.sort(dataList, new Comparator<TagpointData>() {
+            @Override
+            public int compare(TagpointData a, TagpointData b) {
+                if (a.getQrcode().equals(currentQRCode) && !b.getQrcode().equals(currentQRCode)) {
+                    return -1;
+                } else if (!a.getQrcode().equals(currentQRCode) && b.getQrcode().equals(currentQRCode)) {
+                    return 1;
+                }
+                return 0;
+            }
+        });
+
+        // Hiển thị tất cả các tagpoint, bao gồm cả những tagpoint không active
         for (TagpointData data : dataList) {
             createTagpoint(data, currentQRCode);
         }
@@ -388,6 +391,7 @@ public class Tagpoint {
         );
         spacerView.setLayoutParams(spacerParams);
         scrollLinearLayout.addView(spacerView);
+
         JSONObject savedValues = loadSavedValues(data.getIdinfo());
         if (savedValues != null) {
             editTextValue.setText(savedValues.optString("value", ""));
@@ -396,9 +400,15 @@ public class Tagpoint {
                 validateAndColorValue(editTextValue, data);
             }
         }
-        // Thêm TextWatcher chỉ khi tagpoint được active
+
+        // Thêm TextWatcher cho tất cả các tagpoint, nhưng chỉ enable editing cho tagpoint active
+        addTextWatchers(editTextValue, editTextNote, data);
         if (isActive) {
-            addTextWatchers(editTextValue, editTextNote, data);
+            enableEditing(editTextValue);
+            enableEditing(editTextNote);
+        } else {
+            disableEditing(editTextValue);
+            disableEditing(editTextNote);
         }
     }
 
