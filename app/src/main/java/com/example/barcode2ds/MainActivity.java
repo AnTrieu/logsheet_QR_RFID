@@ -351,6 +351,21 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupClear() {
         clear = new Clear(this, tagpoint);
+        clear.setOnClearCompletedListener(new Clear.OnClearCompletedListener() {
+            @Override
+            public void onClearCompleted() {
+                // Khởi tạo lại Tagpoint sau khi xóa
+                setupTagpoint();
+                // Cập nhật lại RFID
+                rfid.setOnRFIDScannedListener(new RFID.OnRFIDScannedListener() {
+                    @Override
+                    public void onRFIDsScanned(List<String> rfidCodes) {
+                        tagpoint.processRFIDCodes(rfidCodes);
+                        setup.updateCurrentRFIDs(rfidCodes);
+                    }
+                });
+            }
+        });
     }
 
     private void setupSync() {

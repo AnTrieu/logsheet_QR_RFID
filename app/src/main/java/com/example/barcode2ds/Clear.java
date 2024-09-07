@@ -16,10 +16,21 @@ public class Clear {
         this.tagpoint = tagpoint;
     }
 
+    public interface OnClearCompletedListener {
+        void onClearCompleted();
+    }
+
+    private OnClearCompletedListener clearCompletedListener;
+
+    public void setOnClearCompletedListener(OnClearCompletedListener listener) {
+        this.clearCompletedListener = listener;
+    }
+
     public void clearTagpointData() {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.remove(PREF_CHANGES_KEY);
+        editor.remove(Tagpoint.PREF_DATA_KEY);
         editor.apply();
         ToastManager.showToast(context, "Đã xóa dữ liệu tagname");
         tagpoint.reInitialize();
@@ -28,5 +39,8 @@ public class Clear {
         adapter.clear();
         adapter.add("Mô tả RFID code");
         adapter.notifyDataSetChanged();
+        if (clearCompletedListener != null) {
+            clearCompletedListener.onClearCompleted();
+        }
     }
 }

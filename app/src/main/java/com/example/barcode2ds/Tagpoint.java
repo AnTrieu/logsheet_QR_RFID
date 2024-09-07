@@ -49,7 +49,7 @@ public class Tagpoint {
     }
     private static final String TOKEN = "sdfghjkxcvbnmasdfghjkwerg5fabdsfghjkjhgfdsrtyueso";
     private static final String PREF_NAME = "TagpointPrefs";
-    private static final String PREF_DATA_KEY = "cachedData";
+    public static final String PREF_DATA_KEY = "cachedData";
     private static final String PREF_CHANGES_KEY = "userChanges";
 
     private Context context;
@@ -284,14 +284,14 @@ public class Tagpoint {
     public void reInitialize() {
         tagpointDataList.clear();
         scrollLinearLayout.removeAllViews();
+        currentRFIDCodes.clear();
+        mainQRCodeEditText.setText("");
+        clearResultSpinner();
         if (isNetworkAvailable()) {
             new FetchDataTask().execute();
         } else {
             loadCachedData();
         }
-        currentRFIDCodes.clear();
-        mainQRCodeEditText.setText("");
-        clearResultSpinner();
     }
 
     public void processQRCode(final String qrCode) {
