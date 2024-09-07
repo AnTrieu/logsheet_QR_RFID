@@ -300,10 +300,19 @@ public class Tagpoint {
 
     public void processQRCode(final String qrCode) {
         List<TagpointData> matchingTagpoints = new ArrayList<>();
+        String matchingRfiddes = null;
+
         for (TagpointData data : tagpointDataList) {
-            if (currentRFIDCodes.contains(data.getRfidcode())) {
+            if (data.getQrcode().equals(qrCode) && currentRFIDCodes.contains(data.getRfidcode())) {
                 matchingTagpoints.add(data);
+                if (matchingRfiddes == null) {
+                    matchingRfiddes = data.getRfiddes();
+                }
             }
+        }
+
+        if (matchingRfiddes != null) {
+            updateSpinnerSelection(matchingRfiddes);
         }
 
         Collections.sort(matchingTagpoints, new Comparator<TagpointData>() {
@@ -319,6 +328,14 @@ public class Tagpoint {
         });
 
         displayTagpoints(matchingTagpoints);
+    }
+
+    private void updateSpinnerSelection(String rfiddes) {
+        ArrayAdapter<String> adapter = (ArrayAdapter<String>) resultSpinner.getAdapter();
+        int position = adapter.getPosition(rfiddes);
+        if (position != -1) {
+            resultSpinner.setSelection(position);
+        }
     }
 
     private List<TagpointData> findMatchingTagpointData(String rfidCode) {
