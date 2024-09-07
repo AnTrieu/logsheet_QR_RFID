@@ -126,7 +126,7 @@ public class Tagpoint {
             if (result != null) {
                 parseAndSaveData(result);
             } else {
-                Toast.makeText(context, "Failed to fetch data from server", Toast.LENGTH_SHORT).show();
+                ToastManager.showToast(context, "Không thể lấy dữ liệu từ máy chủ");
             }
         }
     }
@@ -154,14 +154,14 @@ public class Tagpoint {
                 }
                 saveDataToCache(jsonString);
                 Log.d(TAG, "Parsed " + tagpointDataList.size() + " tagpoint data items");
-                Toast.makeText(context, "Data updated successfully", Toast.LENGTH_SHORT).show();
+                ToastManager.showToast(context, "Upload thành công");
             } else {
                 Log.e(TAG, "Server returned error: " + error);
-                Toast.makeText(context, "Error: " + error, Toast.LENGTH_SHORT).show();
+                ToastManager.showToast(context, "Error: " + error);
             }
         } catch (JSONException e) {
             Log.e(TAG, "Error parsing JSON", e);
-            Toast.makeText(context, "Error parsing data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            ToastManager.showToast(context, "Error: " + e.getMessage());
         }
     }
 
@@ -235,7 +235,7 @@ public class Tagpoint {
         resultSpinner.setSelection(0);
 
         if (rfiddesCount == 0) {
-            Toast.makeText(context, "Không có tagname nào được tìm thấy", Toast.LENGTH_SHORT).show();
+            ToastManager.showToast(context, "Không có tagname nào được tìm thấy");
         } else {
             // Blink animation for the spinner
             Animation blinkAnimation = new AlphaAnimation(0.0f, 1.0f);
@@ -399,7 +399,7 @@ public class Tagpoint {
         // Cập nhật mã QR hiện tại
         mainQRCodeEditText.setText(data.getQrcode());
         processQRCode(data.getQrcode());
-        Toast.makeText(context, "Đã kích hoạt tagpoint: " + data.getTagdes(), Toast.LENGTH_SHORT).show();
+        ToastManager.showToast(context, "Đã kích hoạt tagpoint: " + data.getTagdes());
     }
 
     private void enableEditing(EditText editText) {
@@ -470,7 +470,7 @@ public class Tagpoint {
                 }
             } catch (NumberFormatException e) {
                 editText.setTextColor(Color.RED);
-                Toast.makeText(context, "Vui lòng nhập một số hợp lệ", Toast.LENGTH_SHORT).show();
+                ToastManager.showToast(context, "Vui lòng nhập một số hợp lệ");
             }
         } else {
             editText.setTextColor(Color.BLACK);

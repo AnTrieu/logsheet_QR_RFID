@@ -1,13 +1,13 @@
 <resources>
     <string name="app_name">barcode-2d-demo</string>
 
-    <string name="uhf_msg_set_frequency_succ">Frequency set successfully</string>
-    <string name="uhf_msg_set_frequency_fail">Failed to set frequency</string>
-    <string name="uhf_msg_set_power_succ">Power set successfully</string>
-    <string name="uhf_msg_set_power_fail">Failed to set power</string>
-    <string name="uhf_msg_write_data_empty">Write data cannot be empty</string>
-    <string name="uhf_msg_write_succ">RFID write successful</string>
-    <string name="uhf_msg_write_fail">RFID write failed</string>
+    <string name="uhf_msg_set_frequency_succ">Tần số đã được thiết lập thành công</string>
+    <string name="uhf_msg_set_frequency_fail">Thiết lập tần số thất bại</string>
+    <string name="uhf_msg_set_power_succ">Thiết lập mức năng lượng thành công</string>
+    <string name="uhf_msg_set_power_fail">Thiết lập mức năng lượng thất bại</string>
+    <string name="uhf_msg_write_data_empty">Chưa điền giá trị RFID cần ghi</string>
+    <string name="uhf_msg_write_succ">Ghi giá trị RFID mới thành công</string>
+    <string name="uhf_msg_write_fail">Ghi giá trị RFID mới thất bại</string>
 
     <string-array name="power_levels">
         <item>1 dBm</item>

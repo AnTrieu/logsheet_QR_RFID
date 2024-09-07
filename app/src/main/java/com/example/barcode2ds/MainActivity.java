@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
             Sync.updateApiUrl(savedUrl);
             Tagpoint.updateApiUrl(savedUrl);
         } else {
-            Toast.makeText(this, "Chưa nhập địa chỉ API", Toast.LENGTH_SHORT).show();
+            ToastManager.showToast(this, "Chưa nhập địa chỉ API");
         }
 
         new InitTask().execute();
@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         if (!savedUrl.isEmpty()) {
             reinitializeWithNewUrl(savedUrl);
         } else {
-            Toast.makeText(this, "Chưa có địa chỉ API được lưu. Vui lòng nhập trong phần Setup.", Toast.LENGTH_LONG).show();
+            ToastManager.showToast(this, "Chưa có địa chỉ API được lưu. Vui lòng nhập trong phần Setup.");
         }
     }
 
@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         e.printStackTrace();
-                        Toast.makeText(MainActivity.this, "Failed to fetch recorders", Toast.LENGTH_SHORT).show();
+                        ToastManager.showToast(MainActivity.this, "Lấy dữ liệu người ghi thất bại");
                     }
                 });
             }

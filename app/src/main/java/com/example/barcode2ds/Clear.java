@@ -21,7 +21,7 @@ public class Clear {
         SharedPreferences.Editor editor = prefs.edit();
         editor.remove(PREF_CHANGES_KEY);
         editor.apply();
-        Toast.makeText(context, "All saved tagpoint data has been cleared", Toast.LENGTH_SHORT).show();
+        ToastManager.showToast(context, "Đã xóa dữ liệu tagname");
         tagpoint.reInitialize();
         tagpoint.clearResultSpinner();
         ArrayAdapter<String> adapter = (ArrayAdapter<String>) tagpoint.getResultSpinner().getAdapter();

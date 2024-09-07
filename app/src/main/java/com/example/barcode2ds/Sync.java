@@ -49,12 +49,12 @@ public class Sync {
         if (TextUtils.isEmpty(dateTextView.getText()) ||
                 TextUtils.isEmpty(timeTextView.getText()) ||
                 TextUtils.isEmpty(recorderTextView.getText())) {
-            Toast.makeText(context, "Thiếu dữ liệu", Toast.LENGTH_SHORT).show();
+            ToastManager.showToast(context, "Thiếu dữ liệu");
             return;
         }
 
         if (!isNetworkAvailable()) {
-            Toast.makeText(context, "Upload dữ liệu không khả dụng (Không có kết nối internet)", Toast.LENGTH_LONG).show();
+            ToastManager.showToast(context, "Upload dữ liệu không khả dụng (Không có kết nối internet)");
             return;
         }
 
@@ -106,7 +106,7 @@ public class Sync {
         @Override
         protected void onPostExecute(Boolean result) {
             if (!result) {
-                Toast.makeText(context, "Không có tagpoint nào để lưu", Toast.LENGTH_SHORT).show();
+                ToastManager.showToast(context, "Không có tagpoint nào để lưu");
             } else {
                 clear.clearTagpointData();
             }

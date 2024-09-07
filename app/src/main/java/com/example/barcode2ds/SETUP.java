@@ -126,7 +126,7 @@ public class SETUP {
                 if (rfid != null) {
                     rfid.startScan();
                 } else {
-                    Toast.makeText(context, "RFID scanner not initialized", Toast.LENGTH_SHORT).show();
+                    ToastManager.showToast(context, "Máy quét RFID chưa được khởi tạo");
                 }
             }
         });
@@ -166,12 +166,12 @@ public class SETUP {
             public void onClick(View v) {
                 String url = textAPI.getText().toString().trim();
                 if (url.isEmpty()) {
-                    Toast.makeText(context, "Chưa nhập địa chỉ API", Toast.LENGTH_SHORT).show();
+                    ToastManager.showToast(context, "Chưa nhập địa chỉ API");
                 } else {
                     if (!url.equals(savedUrl)) {
                         APIManager.saveApiUrl(context, url);
                         updateApiUrl(url);
-                        Toast.makeText(context, "Đã cập nhật địa chỉ API", Toast.LENGTH_SHORT).show();
+                        ToastManager.showToast(context, "Đã cập nhật địa chỉ API");
                         if (apiUrlChangedListener != null) {
                             apiUrlChangedListener.onApiUrlChanged(url);
                         }
@@ -255,7 +255,7 @@ public class SETUP {
         Byte mode = frequencyModeMap.get(selectedFrequency);
 
         if (mode == null) {
-            Toast.makeText(context, "Invalid frequency mode", Toast.LENGTH_SHORT).show();
+            ToastManager.showToast(context, "Thiết lập tần số thất bại");
             return;
         }
 

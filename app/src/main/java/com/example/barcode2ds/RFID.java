@@ -68,7 +68,7 @@ public class RFID {
             super.onPostExecute(result);
             progressDialog.dismiss();
             if (!result) {
-                Toast.makeText(context, "RFID init failed", Toast.LENGTH_SHORT).show();
+                ToastManager.showToast(context, "Khởi tạo RFID không thành công");
             }
         }
 
@@ -86,7 +86,7 @@ public class RFID {
         if (mReader != null) {
             new ScanTask().execute();
         } else {
-            Toast.makeText(context, "RFID reader not initialized", Toast.LENGTH_SHORT).show();
+            ToastManager.showToast(context, "Đầu đọc RFID chưa được khởi tạo");
         }
     }
 
@@ -122,7 +122,7 @@ public class RFID {
             if (!results.isEmpty()) {
                 processScannedRFIDs(results);
             } else {
-                Toast.makeText(context, "No tags found", Toast.LENGTH_SHORT).show();
+                ToastManager.showToast(context, "Không tìm thấy mã RFID nào");
             }
         }
     }
@@ -142,11 +142,10 @@ public class RFID {
         if (!uniqueRFIDs.isEmpty()) {
             if (listener != null) {
                 listener.onRFIDsScanned(uniqueRFIDs);
-            }
+            }ToastManager.showToast(context, uniqueRFIDs.size() + " giá trị RFID đã được quét thành công");
         } else {
-            Toast.makeText(context, "No valid RFID codes found", Toast.LENGTH_SHORT).show();
+            ToastManager.showToast(context, "Không có giá trị RFID hợp lệ");
         }
-    }
 }*/
 
 
@@ -219,7 +218,7 @@ public class RFID {
             super.onPostExecute(result);
             progressDialog.dismiss();
             if (!result) {
-                Toast.makeText(context, "RFID init failed", Toast.LENGTH_SHORT).show();
+                ToastManager.showToast(context, "Khởi tạo RFID không thành công");
             }
         }
 
@@ -237,7 +236,7 @@ public class RFID {
         if (mReader != null) {
             new ScanTask().execute();
         } else {
-            Toast.makeText(context, "RFID reader not initialized", Toast.LENGTH_SHORT).show();
+            ToastManager.showToast(context, "Đầu đọc RFID chưa được khởi tạo");
         }
     }
 
@@ -278,7 +277,7 @@ public class RFID {
             if (!results.isEmpty()) {
                 processScannedRFIDs(results);
             } else {
-                Toast.makeText(context, "No tags found", Toast.LENGTH_SHORT).show();
+                ToastManager.showToast(context, "Không tìm thấy mã RFID nào");
             }
         }
     }
@@ -299,8 +298,9 @@ public class RFID {
             if (listener != null) {
                 listener.onRFIDsScanned(uniqueRFIDs);
             }
+            ToastManager.showToast(context, uniqueRFIDs.size() + " giá trị RFID đã được quét thành công");
         } else {
-            Toast.makeText(context, "No valid RFID codes found", Toast.LENGTH_SHORT).show();
+            ToastManager.showToast(context, "Không có giá trị RFID hợp lệ");
         }
     }
 }

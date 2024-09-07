@@ -82,23 +82,23 @@ public class login extends AppCompatActivity {
                     String status = jsonObject.getString("status");
                     String error = jsonObject.getString("error");
                     if ("ok".equals(status)) {
-                        Toast.makeText(login.this, "Login successful!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(login.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
                         saveLoginState(true);
                         Intent mainIntent = new Intent(login.this, MainActivity.class);
                         startActivity(mainIntent);
                         finish();
                     } else {
-                        Toast.makeText(login.this, "Login failed: " + error, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(login.this, "Đăng nhập thất bại" + error, Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Toast.makeText(login.this, "Login failed: JSON error", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(login.this, "Đăng nhập thất bại", Toast.LENGTH_SHORT).show();
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(login.this, "Login failed: Network error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(login.this, "Đăng nhập thất bại: Không có kết nối mạng", Toast.LENGTH_SHORT).show();
             }
         }) {
             @Override
