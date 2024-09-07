@@ -1,9 +1,6 @@
 package com.example.barcode2ds;
 
-import static androidx.core.content.ContextCompat.startActivity;
-
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
@@ -14,22 +11,17 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -39,11 +31,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import android.os.Handler;
 
 public class Tagpoint {
     private static final String TAG = "Tagpoint";
     private static String SERVER_URL = "";
-
     public static void updateApiUrl(String url) {
         SERVER_URL = url;
     }
@@ -215,7 +207,7 @@ public class Tagpoint {
         return resultSpinner;
     }
 
-    private void updateResultSpinner(List<TagpointData> matchingData) {
+    private void updateResultSpinner(final List<TagpointData> matchingData) {
         List<String> rfiddesList = new ArrayList<>();
         rfiddesList.add("Mô tả RFID code");
 
@@ -232,24 +224,36 @@ public class Tagpoint {
         currentAdapter.addAll(rfiddesList);
         currentAdapter.notifyDataSetChanged();
 
-        resultSpinner.setSelection(0);
-
         if (rfiddesCount == 0) {
             ToastManager.showToast(context, "Không có tagname nào được tìm thấy");
+            resultSpinner.setSelection(0);
+        } else if (rfiddesCount == 1) {
+            resultSpinner.setSelection(1);
+            String selectedRfiddes = rfiddesList.get(1);
+            displayTagpointsForSelectedRfiddes(selectedRfiddes);
         } else {
-            // Blink animation for the spinner
-            Animation blinkAnimation = new AlphaAnimation(0.0f, 1.0f);
+            resultSpinner.setSelection(1);
+            final Animation blinkAnimation = new AlphaAnimation(0.0f, 1.0f);
             blinkAnimation.setDuration(300);
             blinkAnimation.setStartOffset(20);
             blinkAnimation.setRepeatMode(Animation.REVERSE);
             blinkAnimation.setRepeatCount(Animation.INFINITE);
             resultSpinner.startAnimation(blinkAnimation);
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    resultSpinner.clearAnimation();
+                }
+            }, 3000);
+
+            String selectedRfiddes = rfiddesList.get(1);
+            displayTagpointsForSelectedRfiddes(selectedRfiddes);
         }
 
         resultSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                resultSpinner.clearAnimation(); // Stop blinking when an item is selected
                 if (position == 0) {
                     scrollLinearLayout.removeAllViews();
                 } else {
@@ -260,7 +264,7 @@ public class Tagpoint {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                resultSpinner.clearAnimation(); // Stop blinking when nothing is selected
+                // Do nothing
             }
         });
     }
