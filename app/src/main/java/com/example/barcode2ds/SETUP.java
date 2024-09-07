@@ -2,7 +2,6 @@ package com.example.barcode2ds;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -29,8 +28,7 @@ public class SETUP {
     private Spinner spFrequency;
     private Spinner spPower;
     private static String currentRFID = "Unknown";
-    private List<String> scannedRFIDs = new ArrayList<>();
-    private RFID rfid;
+    private RFID_setup rfidSetup;
 
     private static final Map<String, Byte> frequencyModeMap = new HashMap<>();
     private static final Map<Byte, String> reverseFrequencyModeMap = new HashMap<>();
@@ -55,10 +53,10 @@ public class SETUP {
     private Button btnAPI;
     private OnApiUrlChangedListener apiUrlChangedListener;
 
-    public SETUP(Context context, RFIDWithUHFUART reader, RFID rfid) {
+    public SETUP(Context context, RFIDWithUHFUART reader) {
         this.context = context;
         this.mReader = reader;
-        this.rfid = rfid;
+        this.rfidSetup = new RFID_setup(context);
     }
 
     public void showSetupPopup() {
@@ -91,7 +89,6 @@ public class SETUP {
         spPower.setAdapter(powerAdapter);
 
         updateCurrentValues();
-        updateCurrentRFIDs(scannedRFIDs);
 
         Button btnClose = dialogView.findViewById(R.id.btnClose);
         btnClose.setOnClickListener(new View.OnClickListener() {
@@ -123,8 +120,15 @@ public class SETUP {
         btnScanRfid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (rfid != null) {
-                    rfid.startScan();
+                if (rfidSetup != null) {
+                    rfidSetup.setOnRFIDScannedListener(new RFID_setup.OnRFIDScannedListener() {
+                        @Override
+                        public void onRFIDScanned(String rfidCode) {
+                            currentRFID = rfidCode;
+                            tvCurrentRFID.setText("Scanned RFID: " + rfidCode);
+                        }
+                    });
+                    rfidSetup.startScan();
                 } else {
                     ToastManager.showToast(context, "Máy quét RFID chưa được khởi tạo");
                 }
@@ -206,49 +210,6 @@ public class SETUP {
         if (power >= 1 && power <= 30) {
             spPower.setSelection(power - 1);
         }
-
-        updateCurrentRFIDs(scannedRFIDs);
-    }
-
-    public void updateCurrentRFIDs(List<String> rfidValues) {
-        this.scannedRFIDs = rfidValues;
-        if (tvCurrentRFID != null) {
-            tvCurrentRFID.setText("Scanned RFIDs: " + rfidValues.size());
-            setupRFIDSelection();
-        }
-    }
-
-    public void updateScannedRFIDs(List<String> rfidCodes) {
-        this.scannedRFIDs = rfidCodes;
-        updateCurrentRFIDs(rfidCodes);
-    }
-
-    private void setupRFIDSelection() {
-        tvCurrentRFID.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showRFIDSelectionDialog();
-            }
-        });
-    }
-
-    private void showRFIDSelectionDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Select RFID");
-
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context, android.R.layout.select_dialog_singlechoice);
-        arrayAdapter.addAll(scannedRFIDs);
-
-        builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String selectedRFID = arrayAdapter.getItem(which);
-                currentRFID = selectedRFID;
-                tvCurrentRFID.setText("Selected RFID: " + selectedRFID);
-            }
-        });
-
-        builder.show();
     }
 
     private void setFrequency(String selectedFrequency) {

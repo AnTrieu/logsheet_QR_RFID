@@ -217,7 +217,7 @@ public class Tagpoint {
             }
         }
 
-        int rfiddesCount = rfiddesList.size() - 1; // Subtract 1 to exclude the default item
+        int rfiddesCount = rfiddesList.size() - 1;
 
         ArrayAdapter<String> currentAdapter = (ArrayAdapter<String>) resultSpinner.getAdapter();
         currentAdapter.clear();
@@ -355,8 +355,6 @@ public class Tagpoint {
                 return 0;
             }
         });
-
-        // Hiển thị tất cả các tagpoint, bao gồm cả những tagpoint không active
         for (TagpointData data : dataList) {
             createTagpoint(data, currentQRCode);
         }
