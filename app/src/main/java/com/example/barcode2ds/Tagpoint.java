@@ -10,6 +10,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -17,7 +18,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -264,14 +267,13 @@ public class Tagpoint {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing
             }
         });
     }
 
     private void displayTagpointsForSelectedRfiddes(String selectedRfiddes) {
         if ("Mô tả RFID code".equals(selectedRfiddes)) {
-            // Không hiển thị tagpoint nếu "Mô tả RFID code" được chọn
+            // Không hiển thị tagpoint nếu "Mô tả RFID code" chưa được chọn
             scrollLinearLayout.removeAllViews();
             return;
         }
@@ -343,7 +345,7 @@ public class Tagpoint {
         }
         final String currentQRCode = mainQRCodeEditText.getText().toString();
 
-        // Sắp xếp dataList để đưa các tagpoint active lên đầu
+        // Sắp xếp dataList để đưa tagname active lên đầu
         Collections.sort(dataList, new Comparator<TagpointData>() {
             @Override
             public int compare(TagpointData a, TagpointData b) {
@@ -364,24 +366,60 @@ public class Tagpoint {
         LayoutInflater inflater = LayoutInflater.from(context);
         View tagpointView = inflater.inflate(R.layout.solieulayout, null);
 
+        final LinearLayout tagnameLayout = tagpointView.findViewById(R.id.tagname_layout);
         final EditText editTextValue = tagpointView.findViewById(R.id.editTextValue);
         final EditText editTextNote = tagpointView.findViewById(R.id.editTextNote);
-        EditText editTextText = tagpointView.findViewById(R.id.editTextText);
+        final EditText editTextText = tagpointView.findViewById(R.id.editTextText);
 
         editTextText.setText(data.getTagdes());
 
-        boolean isActive = data.getQrcode().equals(currentQRCode);
+        final boolean isActive = data.getQrcode().equals(currentQRCode);
 
         updateTagpointAppearance(tagpointView, editTextValue, editTextNote, isActive);
-        tagpointView.setOnClickListener(new View.OnClickListener() {
+
+        View.OnClickListener activationListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activateTagpoint(data);
+                if (!isActive) {
+                    activateTagpoint(data);
+                }
             }
-        });
+        };
+
+        View.OnTouchListener touchListener = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (!isActive) {
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            v.setAlpha(0.7f);
+                            return true;
+                        case MotionEvent.ACTION_UP:
+                            v.setAlpha(1.0f);
+                            v.performClick();
+                            return true;
+                        case MotionEvent.ACTION_CANCEL:
+                            v.setAlpha(1.0f);
+                            return true;
+                    }
+                }
+                return false;
+            }
+        };
+
+        //Các thành phần để active tagname
+        tagnameLayout.setOnClickListener(activationListener);
+        tagnameLayout.setOnTouchListener(touchListener);
+        editTextText.setOnClickListener(activationListener);
+        editTextText.setOnTouchListener(touchListener);
+        editTextNote.setOnClickListener(activationListener);
+        editTextNote.setOnTouchListener(touchListener);
+        editTextValue.setOnClickListener(activationListener);
+        editTextValue.setOnTouchListener(touchListener);
 
         scrollLinearLayout.addView(tagpointView);
 
+        // Add spacer view
         View spacerView = new View(context);
         LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -390,6 +428,7 @@ public class Tagpoint {
         spacerView.setLayoutParams(spacerParams);
         scrollLinearLayout.addView(spacerView);
 
+        // Load saved values and add TextWatchers
         JSONObject savedValues = loadSavedValues(data.getIdinfo());
         if (savedValues != null) {
             editTextValue.setText(savedValues.optString("value", ""));
@@ -399,8 +438,8 @@ public class Tagpoint {
             }
         }
 
-        // Thêm TextWatcher cho tất cả các tagpoint, nhưng chỉ enable editing cho tagpoint active
         addTextWatchers(editTextValue, editTextNote, data);
+
         if (isActive) {
             enableEditing(editTextValue);
             enableEditing(editTextNote);
@@ -425,10 +464,20 @@ public class Tagpoint {
     }
 
     private void activateTagpoint(TagpointData data) {
-        // Cập nhật mã QR hiện tại
         mainQRCodeEditText.setText(data.getQrcode());
         processQRCode(data.getQrcode());
         ToastManager.showToast(context, "Đã kích hoạt tagpoint: " + data.getTagdes());
+        scrollToTop();
+    }
+
+    private void scrollToTop() {
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                ScrollView scrollView = (ScrollView) scrollLinearLayout.getParent();
+                scrollView.fullScroll(ScrollView.FOCUS_UP);
+            }
+        });
     }
 
     private void enableEditing(EditText editText) {
