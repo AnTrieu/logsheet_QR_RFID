@@ -118,7 +118,7 @@
         android:background="@drawable/rounded_square"
         android:backgroundTint="#ffbc26"
         android:gravity="center"
-        android:text="Setup"
+        android:text="MENU"
         android:textColor="#ffffff"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline6"
@@ -260,11 +260,9 @@
         android:text="Select Date"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline11"
-        app:layout_constraintEnd_toStartOf="@+id/guideline5"
         app:layout_constraintHeight_percent="0.0750"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/guideline10"
-        app:layout_constraintWidth_percent="0.6306" />
+        app:layout_constraintWidth_percent="0.368" />
 
     <Button
         android:id="@+id/button5"
@@ -282,5 +280,20 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/guideline5"
         app:layout_constraintWidth_percent="0.2556" />
+
+    <Button
+        android:id="@+id/btnView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent="0.0750"
+        app:layout_constraintWidth_percent="0.25"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="View"
+        android:background="@drawable/date"
+        app:layout_constraintBottom_toTopOf="@+id/guideline11"
+        app:layout_constraintEnd_toStartOf="@+id/guideline5"
+        app:layout_constraintHorizontal_bias="0.9"
+        app:layout_constraintStart_toStartOf="@+id/guideline4" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

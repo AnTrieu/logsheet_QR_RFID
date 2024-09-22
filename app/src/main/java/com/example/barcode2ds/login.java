@@ -1,6 +1,8 @@
 package com.example.barcode2ds;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -35,6 +37,7 @@ public class login extends AppCompatActivity {
         finishAffinity();
     }
 
+    @SuppressLint("NewApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +57,7 @@ public class login extends AppCompatActivity {
         usernameEditText = findViewById(R.id.editTextText4);
         passwordEditText = findViewById(R.id.editTextTextPassword2);
         loginButton = findViewById(R.id.button);
+        AnimationHandler.setButtonAnimation(loginButton);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
