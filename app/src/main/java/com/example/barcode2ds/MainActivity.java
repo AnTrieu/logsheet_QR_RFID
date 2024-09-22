@@ -12,6 +12,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -301,7 +302,7 @@ public class MainActivity extends AppCompatActivity {
         button3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setup.showSetupPopup();
+                showPopupMenu();
             }
         });
 
@@ -484,5 +485,35 @@ public class MainActivity extends AppCompatActivity {
             mypDialog.setCancelable(false);
             mypDialog.show();
         }
+    }
+
+    private void showPopupMenu() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.popup_menu, null);
+        builder.setView(dialogView);
+
+        final AlertDialog dialog = builder.create();
+
+        Button btnSetup = dialogView.findViewById(R.id.btnsetup);
+        btnSetup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                setup.showSetupPopup();
+            }
+        });
+
+        Button btnClose = dialogView.findViewById(R.id.btnClose);
+        if (btnClose != null) {
+            btnClose.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+        }
+
+        dialog.show();
     }
 }
