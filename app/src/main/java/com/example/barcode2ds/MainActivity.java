@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private Tagpoint tagpoint;
     private Clear clear;
     private Sync sync;
+    private Button btnView;
     private ArrayAdapter<String> recordersAdapter;
     private HashMap<String, String> recordersMap;
     private RFIDWithUHFUART mReader;
@@ -155,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
         button4 = findViewById(R.id.button4);
         button5 = findViewById(R.id.button5);
         button8 = findViewById(R.id.button8);
+        btnView = findViewById(R.id.btnView);
         scrollLinearLayout = findViewById(R.id.scrollLinearLayout);
         editTextText2 = findViewById(R.id.editTextText2);
         resultSpinner = findViewById(R.id.rfiddes);
@@ -281,6 +283,13 @@ public class MainActivity extends AppCompatActivity {
         AnimationHandler.setButtonAnimation(button4);
         AnimationHandler.setButtonAnimation(button5);
         AnimationHandler.setButtonAnimation(button8);
+
+        btnView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tagpoint.showIncompleteTagpointsPopup(MainActivity.this);
+            }
+        });
 
         button2.setOnClickListener(new View.OnClickListener() {
             @Override

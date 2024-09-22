@@ -1,6 +1,8 @@
 package com.example.barcode2ds;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
@@ -18,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -298,6 +301,50 @@ public class Tagpoint {
         } else {
             loadCachedData();
         }
+    }
+
+    public List<TagpointData> getIncompleteTagpoints() {
+        List<TagpointData> incompleteTagpoints = new ArrayList<>();
+        for (TagpointData data : tagpointDataList) {
+            JSONObject savedValues = loadSavedValues(data.getIdinfo());
+            if (savedValues == null ||
+                    (savedValues.optString("value", "").isEmpty() &&
+                            savedValues.optString("note", "").isEmpty())) {
+                incompleteTagpoints.add(data);
+            }
+        }
+        return incompleteTagpoints;
+    }
+
+    public void showIncompleteTagpointsPopup(Context context) {
+        List<TagpointData> incompleteTagpoints = getIncompleteTagpoints();
+
+        if (incompleteTagpoints.isEmpty()) {
+            ToastManager.showToast(context, "Tất cả các tagpoint đã được nhập đầy đủ");
+            return;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Tagpoints chưa nhập giá trị");
+
+        ListView listView = new ListView(context);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_2, android.R.id.text1);
+        for (TagpointData data : incompleteTagpoints) {
+            adapter.add(data.getTagdes() + "\n" + data.getRfiddes());
+        }
+        listView.setAdapter(adapter);
+
+        builder.setView(listView);
+
+        builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     public void processQRCode(final String qrCode) {
