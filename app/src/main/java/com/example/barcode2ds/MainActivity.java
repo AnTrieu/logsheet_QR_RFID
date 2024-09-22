@@ -487,7 +487,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showPopupMenu() {
+        private void showPopupMenu() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = LayoutInflater.from(this);
         View dialogView = inflater.inflate(R.layout.popup_menu, null);
@@ -504,6 +504,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button btnHist = dialogView.findViewById(R.id.btnhist);
+        btnHist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                showTagpointHistory();
+            }
+        });
+
         Button btnClose = dialogView.findViewById(R.id.btnClose);
         if (btnClose != null) {
             btnClose.setOnClickListener(new View.OnClickListener() {
@@ -515,5 +524,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         dialog.show();
+    }
+
+    private void showTagpointHistory() {
+        if (tagpoint != null) {
+            tagpoint.showTagpointsHistoryPopup(this);
+        } else {
+            ToastManager.showToast(this, "Tagpoint chưa được khởi tạo");
+        }
     }
 }
