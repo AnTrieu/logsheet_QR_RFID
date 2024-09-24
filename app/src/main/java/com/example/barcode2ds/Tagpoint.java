@@ -303,35 +303,41 @@ public class Tagpoint {
         }
     }
 
-    public List<TagpointData> getIncompleteTagpoints() {
-        List<TagpointData> incompleteTagpoints = new ArrayList<>();
+    public List<TagpointData> getTagpointsWithValues() {
+        List<TagpointData> tagpointsWithValues = new ArrayList<>();
         for (TagpointData data : tagpointDataList) {
             JSONObject savedValues = loadSavedValues(data.getIdinfo());
-            if (savedValues == null ||
-                    (savedValues.optString("value", "").isEmpty() &&
-                            savedValues.optString("note", "").isEmpty())) {
-                incompleteTagpoints.add(data);
+            if (savedValues != null &&
+                    (!savedValues.optString("value", "").isEmpty() ||
+                            !savedValues.optString("note", "").isEmpty())) {
+                tagpointsWithValues.add(data);
             }
         }
-        return incompleteTagpoints;
+        return tagpointsWithValues;
     }
 
-    public void showIncompleteTagpointsPopup(Context context) {
-        List<TagpointData> incompleteTagpoints = getIncompleteTagpoints();
+    public void showTagpointsHistoryPopup(Context context) {
+        List<TagpointData> tagpointsWithValues = getTagpointsWithValues();
 
-        if (incompleteTagpoints.isEmpty()) {
-            ToastManager.showToast(context, "Tất cả các tagpoint đã được nhập đầy đủ");
+        if (tagpointsWithValues.isEmpty()) {
+            ToastManager.showToast(context, "Không có tagpoint nào được nhập giá trị");
             return;
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Tagpoints chưa nhập giá trị");
+        builder.setTitle("Lịch sử nhập liệu Tagpoint");
 
         ListView listView = new ListView(context);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_2, android.R.id.text1);
-        for (TagpointData data : incompleteTagpoints) {
-            adapter.add(data.getTagdes() + "\n" + data.getRfiddes());
+
+        for (TagpointData data : tagpointsWithValues) {
+            JSONObject savedValues = loadSavedValues(data.getIdinfo());
+            String value = savedValues.optString("value", "");
+            String note = savedValues.optString("note", "");
+            String displayText = data.getTagdes() + "\n" + "Giá trị: " + value + ", Ghi chú: " + note;
+            adapter.add(displayText);
         }
+
         listView.setAdapter(adapter);
 
         builder.setView(listView);
