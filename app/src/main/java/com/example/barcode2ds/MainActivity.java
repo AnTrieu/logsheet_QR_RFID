@@ -287,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
         btnView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tagpoint.showIncompleteTagpointsPopup(MainActivity.this);
+                showTagpointHistory();
             }
         });
 
@@ -325,6 +325,14 @@ public class MainActivity extends AppCompatActivity {
                 rfid.startScan();
             }
         });
+    }
+
+    private void showTagpointHistory() {
+        if (tagpoint != null) {
+            tagpoint.showTagpointsHistoryPopup(this);
+        } else {
+            ToastManager.showToast(this, "Tagpoint chưa được khởi tạo");
+        }
     }
 
     private void setupTagpoint() {
