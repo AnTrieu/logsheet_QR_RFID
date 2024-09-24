@@ -16,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -534,6 +535,25 @@ public class Tagpoint {
         mainQRCodeEditText.setText(data.getQrcode());
         processQRCode(data.getQrcode());
         ToastManager.showToast(context, "Đã kích hoạt tagpoint: " + data.getTagdes());
+
+        // Tìm kiếm và lấy editTextValue từ View của tagpoint hiện tại
+        for (int i = 0; i < scrollLinearLayout.getChildCount(); i++) {
+            View childView = scrollLinearLayout.getChildAt(i);
+            if (childView instanceof LinearLayout) { // Kiểm tra nếu childView là LinearLayout chứa tagpoint
+                EditText editTextValue = childView.findViewById(R.id.editTextValue);
+                if (editTextValue != null && editTextValue.isFocusable()) { // Kiểm tra nếu EditText này là của tagpoint đang kích hoạt
+                    // Focus vào EditText
+                    editTextValue.requestFocus();
+
+                    // Hiển thị bàn phím
+                    InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.showSoftInput(editTextValue, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                    break; // Dừng vòng lặp sau khi tìm được EditText cần thiết
+                }
+            }
+        }
     }
 
     private void enableEditing(EditText editText) {

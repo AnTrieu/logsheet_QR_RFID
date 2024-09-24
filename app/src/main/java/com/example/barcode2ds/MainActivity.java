@@ -12,7 +12,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -302,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
         button3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showPopupMenu();
+                setup.showSetupPopup();
             }
         });
 
@@ -492,53 +491,6 @@ public class MainActivity extends AppCompatActivity {
             mypDialog.setCanceledOnTouchOutside(false);
             mypDialog.setCancelable(false);
             mypDialog.show();
-        }
-    }
-
-        private void showPopupMenu() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View dialogView = inflater.inflate(R.layout.popup_menu, null);
-        builder.setView(dialogView);
-
-        final AlertDialog dialog = builder.create();
-
-        Button btnSetup = dialogView.findViewById(R.id.btnsetup);
-        btnSetup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                setup.showSetupPopup();
-            }
-        });
-
-        Button btnHist = dialogView.findViewById(R.id.btnhist);
-        btnHist.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                showTagpointHistory();
-            }
-        });
-
-        Button btnClose = dialogView.findViewById(R.id.btnClose);
-        if (btnClose != null) {
-            btnClose.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    dialog.dismiss();
-                }
-            });
-        }
-
-        dialog.show();
-    }
-
-    private void showTagpointHistory() {
-        if (tagpoint != null) {
-            tagpoint.showTagpointsHistoryPopup(this);
-        } else {
-            ToastManager.showToast(this, "Tagpoint chưa được khởi tạo");
         }
     }
 }
