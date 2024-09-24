@@ -398,24 +398,35 @@ public class Tagpoint {
         }
         final String currentQRCode = mainQRCodeEditText.getText().toString();
 
-        // Sắp xếp dataList để đưa tagname active lên đầu
-        Collections.sort(dataList, new Comparator<TagpointData>() {
-            @Override
-            public int compare(TagpointData a, TagpointData b) {
-                if (a.getQrcode().equals(currentQRCode) && !b.getQrcode().equals(currentQRCode)) {
-                    return -1;
-                } else if (!a.getQrcode().equals(currentQRCode) && b.getQrcode().equals(currentQRCode)) {
-                    return 1;
-                }
-                return 0;
-            }
-        });
+        // Biến để lưu trữ View của tagpoint được kích hoạt
+        View activeTagpointView = null;
+
         for (TagpointData data : dataList) {
-            createTagpoint(data, currentQRCode);
+            View tagpointView = createTagpoint(data, currentQRCode);
+
+            // Kiểm tra nếu tagpoint này là active
+            if (data.getQrcode().equals(currentQRCode)) {
+                activeTagpointView = tagpointView;
+            }
+        }
+
+        // Sau khi hiển thị tất cả các tagpoint, cuộn đến tagpoint được kích hoạt
+        if (activeTagpointView != null) {
+            final ScrollView scrollView = (ScrollView) scrollLinearLayout.getParent();
+            // Sử dụng post để đảm bảo rằng layout đã được cập nhật
+            final View finalActiveTagpointView = activeTagpointView;
+            scrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    // Cuộn màn hình đến vị trí của tagpoint được kích hoạt
+                    int y = finalActiveTagpointView.getTop();
+                    scrollView.smoothScrollTo(0, y);
+                }
+            });
         }
     }
 
-    private void createTagpoint(final TagpointData data, String currentQRCode) {
+    private View createTagpoint(final TagpointData data, String currentQRCode) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View tagpointView = inflater.inflate(R.layout.solieulayout, null);
 
@@ -500,6 +511,9 @@ public class Tagpoint {
             disableEditing(editTextValue);
             disableEditing(editTextNote);
         }
+
+        // Trả về View của tagpoint
+        return tagpointView;
     }
 
     private void updateTagpointAppearance(View tagpointView, EditText editTextValue, EditText editTextNote, boolean isActive) {
@@ -520,17 +534,6 @@ public class Tagpoint {
         mainQRCodeEditText.setText(data.getQrcode());
         processQRCode(data.getQrcode());
         ToastManager.showToast(context, "Đã kích hoạt tagpoint: " + data.getTagdes());
-        scrollToTop();
-    }
-
-    private void scrollToTop() {
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                ScrollView scrollView = (ScrollView) scrollLinearLayout.getParent();
-                scrollView.fullScroll(ScrollView.FOCUS_UP);
-            }
-        });
     }
 
     private void enableEditing(EditText editText) {
