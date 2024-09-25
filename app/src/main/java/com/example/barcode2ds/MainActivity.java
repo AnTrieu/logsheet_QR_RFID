@@ -141,10 +141,10 @@ public class MainActivity extends AppCompatActivity {
         setupRecordersTextView();
 
         // Đồng bộ dữ liệu
-        sync = new Sync(this, dateTextView, timeACTV, recordersTextView, clear);
+        sync = new Sync(this, clear);
 
         // Tagname
-        tagpoint = new Tagpoint(this, scrollLinearLayout, editTextText2, resultSpinner);
+        tagpoint = new Tagpoint(this, scrollLinearLayout, editTextText2, resultSpinner, dateTextView, timeACTV, recordersTextView);
     }
 
     private void initializeViews() {
@@ -336,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupTagpoint() {
-        tagpoint = new Tagpoint(this, scrollLinearLayout, editTextText2, resultSpinner);
+        tagpoint = new Tagpoint(this, scrollLinearLayout, editTextText2, resultSpinner, dateTextView, timeACTV, recordersTextView);
     }
 
     private void setupQRCode() {
@@ -384,7 +384,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupSync() {
-        sync = new Sync(this, dateTextView, timeACTV, recordersTextView, clear);
+        sync = new Sync(this, clear);
     }
 
     @Override

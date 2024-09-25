@@ -37,7 +37,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import android.os.Handler;
 
 public class Tagpoint {
@@ -58,12 +61,16 @@ public class Tagpoint {
     private EditText mainQRCodeEditText;
     private List<String> currentRFIDCodes = new ArrayList<>();
     private Spinner resultSpinner;
+    private TextView dateTextView, timeTextView, recorderTextView;
 
-    public Tagpoint(Context context, LinearLayout scrollLinearLayout, EditText mainQRCodeEditText, Spinner resultSpinner) {
+    public Tagpoint(Context context, LinearLayout scrollLinearLayout, EditText mainQRCodeEditText, Spinner resultSpinner, TextView dateTextView, TextView timeTextView, TextView recorderTextView) {
         this.context = context;
         this.scrollLinearLayout = scrollLinearLayout;
         this.mainQRCodeEditText = mainQRCodeEditText;
         this.resultSpinner = resultSpinner;
+        this.dateTextView = dateTextView;
+        this.timeTextView = timeTextView;
+        this.recorderTextView = recorderTextView;
         this.tagpointDataList = new ArrayList<>();
         this.prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         loadCachedData();
@@ -335,7 +342,13 @@ public class Tagpoint {
             JSONObject savedValues = loadSavedValues(data.getIdinfo());
             String value = savedValues.optString("value", "");
             String note = savedValues.optString("note", "");
-            String displayText = data.getTagdes() + "\n" + "Giá trị: " + value + ", Ghi chú: " + note;
+            String ngayghi = savedValues.optString("ngayghi", "");
+            String thoigianghi = savedValues.optString("thoigianghi", "");
+            String nguoighi = savedValues.optString("nguoighi", "");
+
+            String displayText = data.getTagdes() + "\n" +
+                    "Giá trị: " + value + ", Ghi chú: " + note + "\n" +
+                    "Ngày ghi: " + ngayghi + ", Thời gian ghi: " + thoigianghi + ", Người ghi: " + getRecorderName(nguoighi);
             adapter.add(displayText);
         }
 
@@ -380,6 +393,31 @@ public class Tagpoint {
         if (position != -1) {
             resultSpinner.setSelection(position);
         }
+    }
+
+    private String getRecorderName(String ma) {
+        HashMap<String, String> recordersMap = RecorderFetcher.getRecordersFromLocal(context);
+        String recorderName = "";
+        for (Map.Entry<String, String> entry : recordersMap.entrySet()) {
+            if (entry.getKey().equals(ma)) {
+                recorderName = entry.getValue();
+                break;
+            }
+        }
+        return recorderName;
+    }
+
+    private String getRecorderMa() {
+        String recorderValue = recorderTextView.getText().toString();
+        String recorderMa = "";
+        HashMap<String, String> recordersMap = RecorderFetcher.getRecordersFromLocal(context);
+        for (Map.Entry<String, String> entry : recordersMap.entrySet()) {
+            if (entry.getValue().equals(recorderValue)) {
+                recorderMa = entry.getKey();
+                break;
+            }
+        }
+        return recorderMa;
     }
 
     private List<TagpointData> findMatchingTagpointData(String rfidCode) {
@@ -637,6 +675,12 @@ public class Tagpoint {
             JSONObject values = new JSONObject();
             values.put("value", value);
             values.put("note", note);
+
+            // Thêm các thông tin 'ngayghi', 'thoigianghi', 'nguoighi'
+            values.put("ngayghi", dateTextView.getText().toString());
+            values.put("thoigianghi", timeTextView.getText().toString());
+            values.put("nguoighi", getRecorderMa());
+
             changes.put(idinfo, values);
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(PREF_CHANGES_KEY, changes.toString());

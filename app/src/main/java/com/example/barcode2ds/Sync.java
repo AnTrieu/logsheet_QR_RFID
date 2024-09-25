@@ -17,9 +17,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 public class Sync {
     private static String SERVER_URL = "";
@@ -32,27 +30,14 @@ public class Sync {
     private static final String PREF_CHANGES_KEY = "userChanges";
 
     private Context context;
-    private TextView dateTextView;
-    private TextView timeTextView;
-    private TextView recorderTextView;
     private Clear clear;
 
-    public Sync(Context context, TextView dateTextView, TextView timeTextView, TextView recorderTextView, Clear clear) {
+    public Sync(Context context, Clear clear) {
         this.context = context;
-        this.dateTextView = dateTextView;
-        this.timeTextView = timeTextView;
-        this.recorderTextView = recorderTextView;
         this.clear = clear;
     }
 
     public void syncData() {
-        if (TextUtils.isEmpty(dateTextView.getText()) ||
-                TextUtils.isEmpty(timeTextView.getText()) ||
-                TextUtils.isEmpty(recorderTextView.getText())) {
-            ToastManager.showToast(context, "Thiếu dữ liệu");
-            return;
-        }
-
         if (!isNetworkAvailable()) {
             ToastManager.showToast(context, "Upload dữ liệu không khả dụng (Không có kết nối internet)");
             return;
@@ -89,7 +74,7 @@ public class Sync {
                     String value = tagpointData.optString("value", "");
 
                     if (!value.isEmpty()) {
-                        boolean success = uploadTagpoint(idinfo, value, tagpointData.optString("note", ""));
+                        boolean success = uploadTagpoint(idinfo, value, tagpointData);
                         if (success) {
                             anyTagpointUploaded = true;
                         }
@@ -112,30 +97,31 @@ public class Sync {
             }
         }
 
-        private boolean uploadTagpoint(String idinfo, String value, String note) {
+        private boolean uploadTagpoint(String idinfo, String value, JSONObject tagpointData) {
             try {
                 URL url = new URL(SERVER_URL);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                 conn.setDoOutput(true);
-                String recorderValue = recorderTextView.getText().toString();
-                String recorderMa = "";
-                HashMap<String, String> recordersMap = RecorderFetcher.getRecordersFromLocal(context);
-                for (Map.Entry<String, String> entry : recordersMap.entrySet()) {
-                    if (entry.getValue().equals(recorderValue)) {
-                        recorderMa = entry.getKey();
-                        break;
-                    }
+
+                String ngayghi = tagpointData.optString("ngayghi", "");
+                String thoigianghi = tagpointData.optString("thoigianghi", "");
+                String nguoighi = tagpointData.optString("nguoighi", "");
+                String note = tagpointData.optString("note", "");
+
+                // Kiểm tra nếu các thông tin cần thiết bị trống
+                if (ngayghi.isEmpty() || thoigianghi.isEmpty() || nguoighi.isEmpty()) {
+                    publishProgress("Thiếu thông tin cho tagpoint: " + idinfo);
+                    return false;
                 }
-                String timeValue = timeTextView.getText().toString();
 
                 String postData = "action=savedata_syncline" +
                         "&tokenapi=" + TOKEN +
                         "&idinfo=" + idinfo +
-                        "&ngayghi=" + dateTextView.getText().toString() +
-                        "&thoigianghi=" + timeValue +
-                        "&nguoighi=" + recorderMa +
+                        "&ngayghi=" + ngayghi +
+                        "&thoigianghi=" + thoigianghi +
+                        "&nguoighi=" + nguoighi +
                         "&giatri=" + value +
                         "&ghichu=" + note;
 
