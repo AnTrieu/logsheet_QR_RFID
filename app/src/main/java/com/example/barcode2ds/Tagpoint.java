@@ -47,7 +47,7 @@ public class Tagpoint {
     private static final String TAG = "Tagpoint";
     private static String SERVER_URL = "";
     public static void updateApiUrl(String url) {
-        SERVER_URL = url;
+        SERVER_URL = processUrl(url);
     }
     private static final String TOKEN = "sdfghjkxcvbnmasdfghjkwerg5fabdsfghjkjhgfdsrtyueso";
     private static final String PREF_NAME = "TagpointPrefs";
@@ -96,7 +96,7 @@ public class Tagpoint {
         @Override
         protected String doInBackground(Void... voids) {
             try {
-                URL url = new URL(SERVER_URL);
+                URL url = new URL(processUrl(SERVER_URL));
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -553,6 +553,14 @@ public class Tagpoint {
 
         // Trả về View của tagpoint
         return tagpointView;
+    }
+
+    private static String processUrl(String url) {
+        if (url.toLowerCase().startsWith("http://") || url.toLowerCase().startsWith("https://")) {
+            return url;
+        } else {
+            return "https://" + url;
+        }
     }
 
     private void updateTagpointAppearance(View tagpointView, EditText editTextValue, EditText editTextNote, boolean isActive) {

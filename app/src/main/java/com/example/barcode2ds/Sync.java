@@ -17,14 +17,28 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.cert.X509Certificate;
 import java.util.Iterator;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 public class Sync {
     private static String SERVER_URL = "";
 
     public static void updateApiUrl(String url) {
         SERVER_URL = url;
     }
+
+    private String processUrl(String url) {
+        if (url.toLowerCase().startsWith("http://") || url.toLowerCase().startsWith("https://")) {
+            return url;
+        } else {
+            return "https://" + url;
+        }
+    }
+
     private static final String TOKEN = "sdfghjkxcvbnmasdfghjkwerg5fabdsfghjkjhgfdsrtyueso";
     private static final String PREF_NAME = "TagpointPrefs";
     private static final String PREF_CHANGES_KEY = "userChanges";
@@ -37,12 +51,38 @@ public class Sync {
         this.clear = clear;
     }
 
+    private void trustAllCertificates() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[0];
+                        }
+                        public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                        public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                    }
+            };
+
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(new javax.net.ssl.HostnameVerifier() {
+                public boolean verify(String hostname, javax.net.ssl.SSLSession session) {
+                    return true;
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Gọi phương thức này ở đầu phương thức syncData
     public void syncData() {
         if (!isNetworkAvailable()) {
             ToastManager.showToast(context, "Upload dữ liệu không khả dụng (Không có kết nối internet)");
             return;
         }
-
+        trustAllCertificates();
         new SyncTask().execute();
     }
 
@@ -97,9 +137,17 @@ public class Sync {
             }
         }
 
+        private String processUrl(String url) {
+            if (url.toLowerCase().startsWith("http://") || url.toLowerCase().startsWith("https://")) {
+                return url;
+            } else {
+                return "https://" + url;
+            }
+        }
+
         private boolean uploadTagpoint(String idinfo, String value, JSONObject tagpointData) {
             try {
-                URL url = new URL(SERVER_URL);
+                URL url = new URL(processUrl(SERVER_URL));
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");

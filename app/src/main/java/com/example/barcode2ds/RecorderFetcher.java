@@ -45,7 +45,8 @@ public class RecorderFetcher {
                     HashMap<String, String> recordersMap = new HashMap<>();
 
                     try {
-                        URL url = new URL(URL_STRING);
+                        String processedUrl = processUrl(URL_STRING);
+                        URL url = new URL(processedUrl);
                         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                         urlConnection.setRequestMethod("POST");
                         urlConnection.setDoOutput(true);
@@ -135,6 +136,14 @@ public class RecorderFetcher {
     public static String getLastSelectedRecorder(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return sharedPreferences.getString(LAST_SELECTED_KEY, "");
+    }
+
+    private static String processUrl(String url) {
+        if (url.toLowerCase().startsWith("http://") || url.toLowerCase().startsWith("https://")) {
+            return url;
+        } else {
+            return "https://" + url;
+        }
     }
 
     private static String updateLastSelectedRecorder(HashMap<String, String> newData, String lastSelected) {
